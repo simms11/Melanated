@@ -34,6 +34,7 @@ import { computeReadTime } from './hooks/computeReadTime'
 import { enforcePublishPermission } from './hooks/enforcePublishPermission'
 import { ensureAuthorIsListed } from './hooks/ensureAuthorIsListed'
 import { populatePublishedAt } from './hooks/populatePublishedAt'
+import { removeReactions } from './hooks/removeReactions'
 import { postPath } from './postPath'
 
 export const Posts: CollectionConfig = {
@@ -227,6 +228,7 @@ export const Posts: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeDelete: [removeReactions],
     beforeValidate: [ensureAuthorIsListed, enforcePublishPermission],
     beforeChange: [populatePublishedAt, computeReadTime],
     afterChange: [revalidatePost, recordPostRedirect],
