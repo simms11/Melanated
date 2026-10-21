@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 type Props = { heading: string; body: string; action: string }
 
 /**
@@ -12,22 +14,34 @@ export function Newsletter({ heading, body, action }: Props) {
         <h2 className="text-display-md text-ivory mt-3">{heading}</h2>
         <p className="text-nude mt-3 max-w-md text-sm">{body}</p>
       </div>
-      <form action={action} method="post" className="flex flex-col gap-3 sm:flex-row">
-        <label htmlFor="newsletter-email" className="sr-only">
-          Email address
-        </label>
-        <input
-          id="newsletter-email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="Your email address"
-          className="border-line bg-ivory/5 text-ivory placeholder:text-nude/60 min-h-12 flex-1 rounded-[2px] border px-4"
-        />
-        <button type="submit" className="btn-primary">
-          Subscribe
-        </button>
+      <form action={action} method="post" aria-describedby="newsletter-notice">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <label htmlFor="newsletter-email" className="sr-only">
+            Email address
+          </label>
+          <input
+            id="newsletter-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="Your email address"
+            className="border-line bg-ivory/5 text-ivory placeholder:text-nude/60 min-h-12 flex-1 rounded-[2px] border px-4"
+          />
+          <button type="submit" className="btn-primary">
+            Subscribe
+          </button>
+        </div>
+        {/* UK GDPR: say what the address is for, how to stop, and where the policy is,
+            at the point of collection. */}
+        <p id="newsletter-notice" className="text-nude mt-3 text-xs leading-relaxed">
+          We&rsquo;ll only use your email to send the newsletter. Unsubscribe at any time from any
+          email. See our{' '}
+          <Link href="/privacy" className="text-ivory underline">
+            privacy policy
+          </Link>
+          .
+        </p>
       </form>
     </div>
   )
