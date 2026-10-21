@@ -6,10 +6,12 @@ import type { CollectionBeforeDeleteHook } from 'payload'
  * transaction, so deleting a post always works and leaves no orphaned counts.
  */
 export const removeReactions: CollectionBeforeDeleteHook = async ({ id, req }) => {
-  await req.payload.delete({
-    collection: 'reactions',
-    where: { post: { equals: id } },
-    overrideAccess: true,
-    req,
-  })
+  for (const collection of ['reactions', 'heart-votes'] as const) {
+    await req.payload.delete({
+      collection,
+      where: { post: { equals: id } },
+      overrideAccess: true,
+      req,
+    })
+  }
 }

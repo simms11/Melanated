@@ -72,6 +72,8 @@ export interface Config {
     media: Media;
     users: User;
     reactions: Reaction;
+    'heart-votes': HeartVote;
+    'heart-limits': HeartLimit;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -86,6 +88,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     reactions: ReactionsSelect<false> | ReactionsSelect<true>;
+    'heart-votes': HeartVotesSelect<false> | HeartVotesSelect<true>;
+    'heart-limits': HeartLimitsSelect<false> | HeartLimitsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -365,6 +369,28 @@ export interface Reaction {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heart-votes".
+ */
+export interface HeartVote {
+  id: number;
+  post: number | Post;
+  voter: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heart-limits".
+ */
+export interface HeartLimit {
+  id: number;
+  bucket: string;
+  count: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Old URL → current page. Created automatically when a published URL changes.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -524,6 +550,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reactions';
         value: number | Reaction;
+      } | null)
+    | ({
+        relationTo: 'heart-votes';
+        value: number | HeartVote;
+      } | null)
+    | ({
+        relationTo: 'heart-limits';
+        value: number | HeartLimit;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -726,6 +760,26 @@ export interface UsersSelect<T extends boolean = true> {
 export interface ReactionsSelect<T extends boolean = true> {
   post?: T;
   hearts?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heart-votes_select".
+ */
+export interface HeartVotesSelect<T extends boolean = true> {
+  post?: T;
+  voter?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "heart-limits_select".
+ */
+export interface HeartLimitsSelect<T extends boolean = true> {
+  bucket?: T;
+  count?: T;
   updatedAt?: T;
   createdAt?: T;
 }

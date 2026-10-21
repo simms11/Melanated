@@ -119,7 +119,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [x] Security headers; accounts lock for 10 minutes after 5 failed logins
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
 - [ ] Error monitoring (Sentry) and analytics (Plausible), once the domain is live
-- [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text
+- [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text. The policy must cover the newsletter, the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
 - [ ] Final logo SVG and brand name confirmed (currently a text wordmark)
 - [ ] Real photography replacing placeholder imagery (demo photos' rights unconfirmed)
 - [ ] Production database backups confirmed

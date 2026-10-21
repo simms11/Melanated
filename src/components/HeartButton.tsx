@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils'
 /**
  * Heart a post. Pages are static, so the count is fetched on load. A post can show more than
  * one button (header and end of article); they share this store so they never disagree.
- * The browser remembers its own heart in localStorage. That is the only "identity" there is.
+ * Whether this reader has hearted comes from the server (an anonymous voter cookie), so it
+ * survives cleared storage and can't be faked to remove someone else's heart.
  */
 
 type State = { hearts: number | null; hearted: boolean; pending: boolean }
@@ -16,25 +17,6 @@ const states = new Map<number, State>()
 const listeners = new Map<number, Set<() => void>>()
 const loading = new Set<number>()
 const EMPTY: State = { hearts: null, hearted: false, pending: false }
-
-const storageKey = (postId: number) => `mo:hearted:${postId}`
-
-const readHearted = (postId: number): boolean => {
-  try {
-    return window.localStorage.getItem(storageKey(postId)) === '1'
-  } catch {
-    return false
-  }
-}
-
-const writeHearted = (postId: number, hearted: boolean) => {
-  try {
-    if (hearted) window.localStorage.setItem(storageKey(postId), '1')
-    else window.localStorage.removeItem(storageKey(postId))
-  } catch {
-    // Private browsing or blocked storage: the heart still counts, it just isn't remembered.
-  }
-}
 
 const set = (postId: number, patch: Partial<State>) => {
   states.set(postId, { ...(states.get(postId) ?? EMPTY), ...patch })
@@ -51,10 +33,9 @@ const subscribe = (postId: number) => (notify: () => void) => {
 const load = async (postId: number) => {
   if (loading.has(postId) || states.get(postId)?.hearts != null) return
   loading.add(postId)
-  set(postId, { hearted: readHearted(postId) })
   try {
     const res = await fetch(`/api/posts/${postId}/heart`, { cache: 'no-store' })
-    if (res.ok) set(postId, { hearts: ((await res.json()) as { hearts: number }).hearts })
+    if (res.ok) set(postId, (await res.json()) as { hearts: number; hearted: boolean })
   } finally {
     loading.delete(postId)
   }
@@ -68,10 +49,10 @@ const toggle = async (postId: number) => {
   set(postId, { hearted: next, hearts: current.hearts + (next ? 1 : -1), pending: true })
   try {
     const res = await fetch(`/api/posts/${postId}/heart`, { method: next ? 'POST' : 'DELETE' })
+    // 429 (rate limit) and other errors roll back below.
     if (!res.ok) throw new Error(String(res.status))
-    const { hearts } = (await res.json()) as { hearts: number }
-    writeHearted(postId, next)
-    set(postId, { hearts, pending: false })
+    const { hearts, hearted } = (await res.json()) as { hearts: number; hearted: boolean }
+    set(postId, { hearts, hearted, pending: false })
   } catch {
     set(postId, { hearted: current.hearted, hearts: current.hearts, pending: false })
   }
