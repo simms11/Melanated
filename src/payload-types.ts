@@ -223,6 +223,10 @@ export interface Media {
    * Photographer or source, shown under the image where relevant.
    */
   credit?: string | null;
+  /**
+   * Set automatically. Authors can only edit images they uploaded.
+   */
+  uploadedBy?: (number | null) | User;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -279,39 +283,6 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  /**
-   * Display name in navigation and headings. Safe to change at any time.
-   */
-  title: string;
-  /**
-   * The web address, e.g. /business. Locked once the section has published posts.
-   */
-  slug: string;
-  /**
-   * One line under the category name, e.g. "Timeless style. Bold looks."
-   */
-  tagline?: string | null;
-  /**
-   * Intro paragraph on the category landing page.
-   */
-  description?: string | null;
-  /**
-   * Tile image on the home page and hero on the category page.
-   */
-  image?: (number | null) | Media;
-  /**
-   * Lower numbers appear first in navigation.
-   */
-  order?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -346,6 +317,39 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  /**
+   * Display name in navigation and headings. Safe to change at any time.
+   */
+  title: string;
+  /**
+   * The web address, e.g. /business. Locked once the section has published posts.
+   */
+  slug: string;
+  /**
+   * One line under the category name, e.g. "Timeless style. Bold looks."
+   */
+  tagline?: string | null;
+  /**
+   * Intro paragraph on the category landing page.
+   */
+  description?: string | null;
+  /**
+   * Tile image on the home page and hero on the category page.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Lower numbers appear first in navigation.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Hearts readers have given each post. Updated from the site; read-only here.
@@ -620,6 +624,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
   credit?: T;
+  uploadedBy?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

@@ -1,6 +1,16 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
-import { admins, anyone, authenticated } from '@/access'
+import { admins, adminsOrUploader, anyone, authenticated } from '@/access'
+
+/**
+ * Who uploaded an image decides who may edit or replace it. Set here, from the signed-in
+ * user, never from the request body; edits keep the original uploader.
+ */
+const recordUploader: CollectionBeforeChangeHook = ({ data, operation, originalDoc, req }) => {
+  if (operation === 'create') data.uploadedBy = req.user?.id ?? null
+  else data.uploadedBy = originalDoc?.uploadedBy ?? null
+  return data
+}
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -10,9 +20,11 @@ export const Media: CollectionConfig = {
   access: {
     read: anyone,
     create: authenticated,
-    update: authenticated,
+    // Replacing a file changes every post that uses it, so authors may only edit their own.
+    update: adminsOrUploader,
     delete: admins,
   },
+  hooks: { beforeChange: [recordUploader] },
   upload: {
     // Local disk in dev; swapped for Vercel Blob in production via the storage plugin.
     staticDir: 'media',
@@ -47,6 +59,16 @@ export const Media: CollectionConfig = {
       name: 'credit',
       type: 'text',
       admin: { description: 'Photographer or source, shown under the image where relevant.' },
+    },
+    {
+      name: 'uploadedBy',
+      type: 'relationship',
+      relationTo: 'users',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Set automatically. Authors can only edit images they uploaded.',
+      },
     },
   ],
 }

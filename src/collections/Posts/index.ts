@@ -23,7 +23,7 @@ import {
   adminsField,
   adminsOrOwnPosts,
   authenticated,
-  authenticatedOrPublished,
+  adminsOwnOrPublished,
 } from '@/access'
 import { slugField } from '@/fields/slug'
 import { recordPostRedirect } from '@/hooks/redirects'
@@ -51,7 +51,7 @@ export const Posts: CollectionConfig = {
     },
   },
   access: {
-    read: authenticatedOrPublished,
+    read: adminsOwnOrPublished,
     create: authenticated,
     update: adminsOrOwnPosts,
     delete: admins,

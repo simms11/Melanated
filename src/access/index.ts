@@ -1,4 +1,4 @@
-import type { Access, AccessArgs, FieldAccess } from 'payload'
+import type { Access, AccessArgs, FieldAccess, Where } from 'payload'
 
 import type { User } from '@/payload-types'
 
@@ -38,10 +38,21 @@ export const adminsOrOwnPosts: Access = ({ req: { user } }: AccessArgs<User>) =>
 }
 
 /**
- * Public readers only see published docs. Signed-in users also see drafts
- * (needed for the admin UI and preview mode).
+ * Posts. Public: published only. Admins: everything. Authors: anything published, plus
+ * posts they are listed on, so they can't read another writer's unpublished drafts.
  */
-export const authenticatedOrPublished: Access = ({ req: { user } }: AccessArgs<User>) => {
-  if (user) return true
-  return { _status: { equals: 'published' } }
+export const adminsOwnOrPublished: Access = ({ req: { user } }: AccessArgs<User>) => {
+  if (!user) return { _status: { equals: 'published' } }
+  if (isAdmin(user)) return true
+  const ownOrPublished: Where = {
+    or: [{ _status: { equals: 'published' } }, { authors: { contains: user.id } }],
+  }
+  return ownOrPublished
+}
+
+/** Media. Admins edit any image; authors only images they uploaded themselves. */
+export const adminsOrUploader: Access = ({ req: { user } }: AccessArgs<User>) => {
+  if (!user) return false
+  if (isAdmin(user)) return true
+  return { uploadedBy: { equals: user.id } }
 }

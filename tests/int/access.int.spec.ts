@@ -110,7 +110,8 @@ afterAll(async () => {
   if (!payload) return
   const like = { like: P }
   await payload.delete({ collection: 'posts', where: { slug: like }, context: ctx })
-  await payload.delete({ collection: 'media', where: { id: { equals: image?.id } }, context: ctx })
+  // By filename prefix, so images from a test that failed midway are removed too.
+  await payload.delete({ collection: 'media', where: { filename: like }, context: ctx })
   await payload.delete({ collection: 'categories', where: { slug: like }, context: ctx })
   await payload.delete({ collection: 'users', where: { email: like }, context: ctx })
 })
@@ -238,5 +239,118 @@ describe('editorial placement', () => {
     })
     expect(saved.featured).toBe(false)
     expect(saved.trending).toBe(false)
+  })
+})
+
+describe('authors see and change only their own work', () => {
+  const swatch = () =>
+    sharp({ create: { width: 8, height: 8, channels: 3, background: '#c4813c' } })
+      .png()
+      .toBuffer()
+
+  it("hides another writer's unpublished draft from an author", async () => {
+    const draft = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-admins-draft`,
+        slug: `${P}-admins-draft`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: category.id,
+        authors: [admin.id],
+        disclosure: 'none',
+        _status: 'draft',
+      },
+      draft: true,
+      context: ctx,
+    })
+    const seen = await payload
+      .find({
+        collection: 'posts',
+        where: { id: { equals: draft.id } },
+        draft: true,
+        user: author,
+        overrideAccess: false,
+      })
+      .then((r) => r.totalDocs)
+    expect(seen).toBe(0)
+  })
+
+  it('still lets an author read published posts and their own drafts', async () => {
+    const live = await publishedPost(`${P}-others-live`, admin)
+    const mine = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-my-draft`,
+        slug: `${P}-my-draft`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: category.id,
+        authors: [author.id],
+        disclosure: 'none',
+        _status: 'draft',
+      },
+      draft: true,
+      context: ctx,
+    })
+    const ids = (
+      await payload.find({
+        collection: 'posts',
+        where: { id: { in: [live.id, mine.id] } },
+        draft: true,
+        user: author,
+        overrideAccess: false,
+      })
+    ).docs.map((d) => d.id)
+    expect(ids.sort()).toEqual([live.id, mine.id].sort())
+  })
+
+  it('stops an author editing an image someone else uploaded, but not their own', async () => {
+    const png = await swatch()
+    const theirs = await payload.create({
+      collection: 'media',
+      data: { alt: 'Admin upload' },
+      file: { data: png, mimetype: 'image/png', name: `${P}-theirs.png`, size: png.length },
+      user: admin,
+      overrideAccess: false,
+      context: ctx,
+    })
+    const mine = await payload.create({
+      collection: 'media',
+      data: { alt: 'Author upload' },
+      file: { data: png, mimetype: 'image/png', name: `${P}-mine.png`, size: png.length },
+      user: author,
+      overrideAccess: false,
+      context: ctx,
+    })
+
+    await expect(
+      payload.update({
+        collection: 'media',
+        id: theirs.id,
+        data: { alt: 'Hijacked' },
+        user: author,
+        overrideAccess: false,
+        context: ctx,
+      }),
+    ).rejects.toThrow()
+
+    const edited = await payload.update({
+      collection: 'media',
+      id: mine.id,
+      data: { alt: 'Author upload, edited' },
+      user: author,
+      overrideAccess: false,
+      context: ctx,
+    })
+    expect(edited.alt).toBe('Author upload, edited')
+
+    await payload.delete({
+      collection: 'media',
+      where: { id: { in: [theirs.id, mine.id] } },
+      context: ctx,
+    })
   })
 })

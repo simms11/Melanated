@@ -25,4 +25,4 @@ The **SEO** tab is optional. Leave it blank and the title, excerpt and hero imag
 
 ## Accounts
 
-Admins can add writers under **Users**. Choose the role **Author** for contributors. Authors see and edit only their own posts.
+Admins can add writers under **Users**. Choose the role **Author** for contributors. Authors can edit only their own posts, can't see other writers' unpublished drafts, and can only edit or replace images they uploaded themselves. Admins can do everything.
