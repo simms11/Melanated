@@ -5,21 +5,28 @@ Status: the site is not deployed yet. Set these up on the first production deplo
 
 ## 1. Uptime monitoring
 
-The app exposes `GET /api/health`. It returns:
+There are two checks, on purpose:
 
-- `200 {"status":"ok","database":"ok"}` when the app and its database both answer
-- `503 {"status":"error","database":"unreachable"}` when the database doesn't answer within 3 seconds
+| Check                                                                                                                          | What it proves                             | How often              |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------ | ---------------------- |
+| `GET /api/health` returns `200 {"status":"ok"}`                                                                                | The site is up. Doesn't touch the database | Every 1 to 5 minutes   |
+| `GET /api/health/database` returns `200 {"status":"ok","database":"ok"}`, or `503` if the database doesn't answer in 3 seconds | The database is reachable                  | Every 30 to 60 minutes |
 
-It is never cached and reveals nothing else.
+**Why two:** on Neon's free plan the database sleeps after 5 idle minutes and the plan includes
+100 compute-hours a month. Pinging the database every few minutes keeps it awake all month
+(about 730 hours, roughly 180 compute-hours at the smallest size), so the allowance runs out
+mid-month and the admin stops working until the next month. Never point a frequent monitor at
+`/api/health/database` on the free plan. Public pages are static, so the frequent check is the
+one readers depend on. Check Neon's current limits on the dashboard when choosing the plan.
 
-**Set up (once):** create a free monitor on Better Stack or UptimeRobot.
+**Set up (once):** create two free monitors on Better Stack or UptimeRobot.
 
-| Setting    | Value                                                                   |
-| ---------- | ----------------------------------------------------------------------- |
-| URL        | `https://<domain>/api/health`                                           |
-| Interval   | 1 minute                                                                |
-| Alert when | status is not 200, twice in a row                                       |
-| Notify     | the site owner and the developer, by email (and SMS if the plan allows) |
+| Setting    | Uptime monitor                    | Database monitor                       |
+| ---------- | --------------------------------- | -------------------------------------- |
+| URL        | `https://<domain>/api/health`     | `https://<domain>/api/health/database` |
+| Interval   | 1 to 5 minutes                    | 30 to 60 minutes                       |
+| Alert when | status is not 200, twice in a row | status is not 200, twice in a row      |
+| Notify     | owner and developer, by email     | developer, by email                    |
 
 A public status page is optional; it is useful if the client gets "is the site down?" messages.
 
@@ -85,9 +92,20 @@ A backup you haven't restored is a hope, not a backup. Time each drill.
 | ---- | ------------- | ---------- | --------------- |
 |      |               |            |                 |
 
-## 4. If the site is down
+## 4. Locked out of the admin
 
-1. Check `/api/health`. A 503 means the database: check the provider's status page and dashboard.
+There's no email service yet, so "Forgot password" sends nothing.
+
+- After 5 wrong passwords an account locks for 10 minutes; wait, then try again.
+- Any admin can set a new password for another user under **Users**.
+- If the only admin is locked out: run a one-off script against the production database (with
+  `NODE_ENV=production`) that uses Payload's Local API to set a new password for that user, and
+  hand the new password over in person or through a password manager. Adding an email adapter
+  (for example Resend) would make this self-service.
+
+## 5. If the site is down
+
+1. Check `/api/health` (is the site up?) and `/api/health/database`. A 503 from the database check means the database: check the provider's status page, dashboard and remaining compute allowance.
 2. Check the Vercel deployment status. If the latest deploy broke it, **Instant Rollback** to the
    previous deployment in the Vercel dashboard; fix forward afterwards.
 3. Search the logs for `request_error` around the start time.

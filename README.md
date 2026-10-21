@@ -32,7 +32,7 @@ Built with **Next.js 16 (App Router, TypeScript, Tailwind 4)** and **Payload CMS
 - **SEO:** per-page metadata, canonical URLs, Open Graph/Twitter cards, escaped `Article` JSON-LD, `sitemap.xml`, `robots.txt`, RSS at `/feed.xml`.
 - **Colour scheme:** the client's palette: a cocoa page body, an espresso frame (header, hero, category headers, footer), gold as the only accent, and an ivory reading surface for article text. Components use semantic tokens, so text colours adapt to each surface; `/styleguide` lists the measured contrast rules.
 - **Security:** a Content Security Policy and the other security headers are set in `src/lib/securityHeaders.ts` (applied from `next.config.ts`, so they work locally too). The user list is private, and login locks for 10 minutes after 5 failed attempts.
-- **Accessibility:** targets WCAG 2.2 AA with a skip link, landmarks, focus states, required alt text, reduced-motion support, and an AA contrast audit of every page.
+- **Accessibility:** targets WCAG 2.2 AA with a skip link, landmarks, focus states, required alt text, reduced-motion support. AA contrast is checked on real pages during development, and `/styleguide` lists the measured rules (there is no automated contrast test in CI yet).
 
 See [`docs/adr`](docs/adr) for the reasoning behind the main decisions and [`docs/runbooks/operations.md`](docs/runbooks/operations.md) for running the live site.
 
@@ -107,7 +107,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 4. Create the first admin and the draft privacy policy and terms by running `pnpm seed` against the production database with `NODE_ENV=production`, the real `SEED_ADMIN_EMAIL` and a strong `SEED_ADMIN_PASSWORD` (16+ characters). The seed refuses a hosted database without all three, and Payload never auto-syncs ("pushes") the schema to a hosted database, so migrations stay in charge.
 5. The client reviews the privacy policy and terms, fills in the [bracketed] details and publishes them in the admin.
 6. Point the domain at Vercel. Security headers are in `src/lib/securityHeaders.ts`; the scheduled-publish cron is in `vercel.json`.
-7. Follow [`docs/runbooks/operations.md`](docs/runbooks/operations.md): uptime monitor on `/api/health`, error logs, backups and a restore drill.
+7. Follow [`docs/runbooks/operations.md`](docs/runbooks/operations.md): uptime monitors (`/api/health` often, `/api/health/database` rarely), error logs, backups and a restore drill.
 
 ## Definition of done (production checklist)
 
@@ -122,9 +122,9 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [x] ESLint + Prettier + TypeScript strict, GitHub Actions CI (lint, typecheck, unit and database tests, migrations on an empty database with a drift check, build, e2e)
 - [x] Automatic redirects for changed URLs; advertising disclosure labels
 - [x] Security headers including a Content Security Policy; login lockout after 5 failed attempts
-- [x] Health endpoint (`/api/health`) and structured server error logs
+- [x] Health checks (`/api/health` for uptime, `/api/health/database` checked rarely so a free Neon database can sleep) and structured server error logs
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
-- [ ] Uptime monitor on `/api/health`, error alerts (Sentry if wanted) and analytics (Plausible), once the domain is live
+- [ ] Uptime monitors on `/api/health` and `/api/health/database`, error alerts (Sentry if wanted) and analytics (Plausible), once the domain is live
 - [ ] Privacy policy and terms reviewed (ideally by a solicitor), [bracketed] details filled in and published. They already cover the `mo_voter` heart cookie and the hashed network data used to rate-limit hearts
 - [ ] Final logo as an SVG (the brand name, Melanated Online, is confirmed; the logo is currently a text wordmark)
 - [ ] Real photography replacing the placeholder images
