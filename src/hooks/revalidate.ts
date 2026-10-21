@@ -6,6 +6,7 @@ import type {
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 
+import { postPath } from '@/collections/Posts/postPath'
 import type { Category, Post } from '@/payload-types'
 
 /**
@@ -21,22 +22,22 @@ export const CACHE_TAGS = {
   settings: 'settings',
 } as const
 
-const categorySlug = (cat: Post['category']): string | undefined =>
-  typeof cat === 'object' && cat !== null ? (cat.slug ?? undefined) : undefined
-
-export const revalidatePost: CollectionAfterChangeHook<Post> = ({
+export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
   doc,
   previousDoc,
-  req: { payload, context },
+  req,
 }) => {
+  const { payload, context } = req
   if (context.disableRevalidate) return doc
 
   const paths = new Set<string>()
   if (doc._status === 'published') {
-    paths.add(`/${categorySlug(doc.category) ?? 'posts'}/${doc.slug}`)
+    const path = await postPath(payload, doc, req)
+    if (path) paths.add(path)
   }
-  if (previousDoc?._status === 'published' && previousDoc.slug) {
-    paths.add(`/${categorySlug(previousDoc.category) ?? 'posts'}/${previousDoc.slug}`)
+  if (previousDoc?._status === 'published') {
+    const path = await postPath(payload, previousDoc, req)
+    if (path) paths.add(path)
   }
 
   for (const path of paths) {
@@ -47,12 +48,10 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   return doc
 }
 
-export const revalidatePostDelete: CollectionAfterDeleteHook<Post> = ({
-  doc,
-  req: { context },
-}) => {
-  if (context.disableRevalidate) return doc
-  if (doc?.slug) revalidatePath(`/${categorySlug(doc.category) ?? 'posts'}/${doc.slug}`)
+export const revalidatePostDelete: CollectionAfterDeleteHook<Post> = async ({ doc, req }) => {
+  if (req.context.disableRevalidate) return doc
+  const path = await postPath(req.payload, doc, req)
+  if (path) revalidatePath(path)
   revalidateTag(CACHE_TAGS.posts, 'max')
   return doc
 }

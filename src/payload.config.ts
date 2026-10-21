@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Posts } from './collections/Posts'
+import { postPath } from './collections/Posts/postPath'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 
@@ -50,10 +51,8 @@ export default buildConfig({
       generateTitle: ({ doc }) => `${doc?.title ?? ''} · Melanated Online`,
       generateDescription: ({ doc }) => doc?.excerpt ?? '',
       generateImage: ({ doc }) => doc?.heroImage,
-      generateURL: ({ doc }) => {
-        const cat = typeof doc?.category === 'object' ? doc.category?.slug : undefined
-        return `${serverURL}/${cat ?? 'posts'}/${doc?.slug ?? ''}`
-      },
+      generateURL: async ({ doc, req }) =>
+        `${serverURL}${(await postPath(req.payload, doc, req)) ?? ''}`,
     }),
     ...(process.env.BLOB_READ_WRITE_TOKEN
       ? [

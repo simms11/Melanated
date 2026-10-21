@@ -27,11 +27,13 @@ import {
 } from '@/access'
 import { slugField } from '@/fields/slug'
 import { revalidatePost, revalidatePostDelete } from '@/hooks/revalidate'
+import type { Post } from '@/payload-types'
 
 import { computeReadTime } from './hooks/computeReadTime'
 import { enforcePublishPermission } from './hooks/enforcePublishPermission'
 import { ensureAuthorIsListed } from './hooks/ensureAuthorIsListed'
 import { populatePublishedAt } from './hooks/populatePublishedAt'
+import { postPath } from './postPath'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -39,20 +41,10 @@ export const Posts: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'authors', '_status', 'publishedAt'],
     group: 'Content',
-    // The admin passes relationships as bare IDs, so resolve the category slug here —
-    // the article page 404s anything that isn't the post's canonical /<category>/<slug>.
+    // Hidden until the post has a slug and category — anything else would 404.
     preview: async (doc, { req }) => {
-      if (!doc?.slug || doc.category == null) return null
-      const category =
-        typeof doc.category === 'object'
-          ? (doc.category as { slug?: string })
-          : await req.payload.findByID({
-              collection: 'categories',
-              id: doc.category as number,
-              depth: 0,
-            })
-      if (!category?.slug) return null
-      const path = `/${category.slug}/${doc.slug}`
+      const path = await postPath(req.payload, doc as Pick<Post, 'slug' | 'category'>, req)
+      if (!path) return null
       return `${process.env.NEXT_PUBLIC_SERVER_URL ?? ''}/api/preview?path=${encodeURIComponent(path)}`
     },
   },
