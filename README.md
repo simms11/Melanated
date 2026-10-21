@@ -89,7 +89,8 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 | --------------------- | ------------------------------------------------------------------- |
 | `pnpm dev`            | Dev server with hot reload                                          |
 | `pnpm build`          | Production build (fails on type errors)                             |
-| `pnpm vercel-build`   | Migrate (production deploys only), then build                       |
+| `pnpm vercel-build`   | Migrate and check (production deploys only), then build             |
+| `pnpm migrate:check`  | Fail if any migration is not applied to the database                |
 | `pnpm check`          | Lint, typecheck and Prettier; run before every commit               |
 | `pnpm test:int`       | Vitest unit and database tests, in a separate `<db>_test` database  |
 | `pnpm test:e2e`       | Playwright end-to-end tests against a running dev server            |
