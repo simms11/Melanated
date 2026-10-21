@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Category, SiteSetting } from '@/payload-types'
 
 import { Logo } from './Logo'
-import { MobileNav } from './MobileNav'
+import { SectionNav } from './SectionNav'
 
 type Props = {
   categories: Category[]
@@ -19,39 +19,26 @@ export function Header({ categories, settings }: Props) {
   return (
     <header className="dark-section border-line supports-[backdrop-filter]:bg-espresso/90 sticky top-0 z-50 border-b backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between gap-6 lg:h-20">
-        <Link href="/" aria-label={`${settings.siteName} — home`} className="no-underline">
+        <Link href="/" aria-label={`${settings.siteName}, home`} className="no-underline">
           <Logo light />
         </Link>
 
-        <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center gap-8">
-            {links.map((l) => (
-              <li key={l.href}>
-                <Link
-                  href={l.href}
-                  className="eyebrow text-fg hover:text-kicker no-underline transition-colors"
-                >
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <SectionNav links={links} variant="inline" className="hidden md:block" />
 
-        <div className="flex items-center gap-3">
-          {settings.whatsappUrl && (
-            <a
-              href={settings.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary hidden min-h-10 px-5 py-2 text-[0.75rem] md:inline-flex"
-            >
-              Join the community
-            </a>
-          )}
-          <MobileNav links={links} whatsappUrl={settings.whatsappUrl ?? undefined} />
-        </div>
+        {settings.whatsappUrl && (
+          <a
+            href={settings.whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary hidden min-h-10 px-5 py-2 text-[0.75rem] lg:inline-flex"
+          >
+            Join the community
+          </a>
+        )}
       </div>
+
+      {/* Phones: the sections get their own row instead of hiding behind a menu. */}
+      <SectionNav links={links} variant="bar" className="border-line border-t md:hidden" />
     </header>
   )
 }

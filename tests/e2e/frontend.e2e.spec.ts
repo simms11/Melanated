@@ -8,14 +8,38 @@ test.describe('Frontend', () => {
     await expect(page.locator('h1').first()).toBeVisible()
   })
 
-  test('mobile navigation opens and closes', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
+  // Navigation is never hidden behind a menu: on a phone every section is one tap away.
+  // (The old ☰ panel was clipped to the header by backdrop-blur and showed one link.)
+  test('section navigation is visible and tappable on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/beauty')
+    const nav = page.getByRole('navigation', { name: 'Sections', exact: true })
+    await expect(nav).toBeVisible()
+    for (const name of ['Fashion', 'Beauty', 'Wellness', 'Business', 'Community']) {
+      const link = nav.getByRole('link', { name, exact: true })
+      await link.scrollIntoViewIfNeeded()
+      await expect(link).toBeInViewport()
+      const box = await link.boundingBox()
+      expect(box?.height, `${name} tap target`).toBeGreaterThanOrEqual(44)
+    }
+    await expect(nav.getByRole('link', { name: 'Beauty', exact: true })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    )
+    expect(overflow).toBeLessThanOrEqual(0)
+    await expect(page.getByRole('button', { name: /menu/i })).toHaveCount(0)
+  })
+
+  test('tablets get the full navigation', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 1024 })
     await page.goto('/')
-    const toggle = page.getByRole('button', { name: 'Open menu' })
-    await toggle.click()
-    await expect(page.getByRole('navigation', { name: 'Mobile' })).toBeVisible()
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('navigation', { name: 'Mobile' })).toBeHidden()
+    const nav = page.getByRole('navigation', { name: 'Sections', exact: true })
+    for (const name of ['Fashion', 'Beauty', 'Wellness', 'Business', 'Community']) {
+      await expect(nav.getByRole('link', { name, exact: true })).toBeInViewport()
+    }
   })
 
   test('community page and 404 are on-brand', async ({ page }) => {
