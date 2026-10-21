@@ -44,6 +44,49 @@ jobs:
       - run: pnpm test:int
       - run: pnpm build
 
+  migrations:
+    name: Migrations
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: melanated_online
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/melanated_online
+      PAYLOAD_SECRET: ci-secret
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Production never pushes the schema; build it from the migrations alone, as a deploy would.
+      - name: Apply every migration to an empty database
+        run: pnpm migrate
+        env:
+          NODE_ENV: production
+      - name: Fail if the schema changed without a migration
+        env:
+          NODE_ENV: production
+        run: |
+          pnpm payload migrate:create drift_check < /dev/null
+          if [ -n "$(git status --porcelain src/migrations)" ]; then
+            echo "::error::A collection or global changed without a migration. Run pnpm migrate:create and commit it."
+            git status --porcelain src/migrations
+            exit 1
+          fi
+
   e2e:
     name: Playwright
     runs-on: ubuntu-latest

@@ -76,7 +76,7 @@ In development the database schema is pushed automatically. In production, run m
 ```bash
 pnpm generate:types             # after changing a collection or global
 pnpm migrate:create <name>      # then commit the generated file in src/migrations
-pnpm migrate                    # on deploy (Vercel build command: pnpm migrate && pnpm build)
+pnpm migrate                    # on deploy; Vercel's build command is pnpm vercel-build
 ```
 
 ## Scripts
@@ -85,6 +85,7 @@ pnpm migrate                    # on deploy (Vercel build command: pnpm migrate 
 | --------------------- | ----------------------------------------------------- |
 | `pnpm dev`            | Dev server with hot reload                            |
 | `pnpm build`          | Production build (fails on type errors)               |
+| `pnpm vercel-build`   | Migrate (production deploys only), then build         |
 | `pnpm check`          | Lint, typecheck and Prettier; run before every commit |
 | `pnpm test:int`       | Vitest unit + database tests (needs `DATABASE_URL`)   |
 | `pnpm test:e2e`       | Playwright smoke tests (needs a running DB)           |
@@ -98,7 +99,7 @@ pnpm migrate                    # on deploy (Vercel build command: pnpm migrate 
 
 1. Create a Postgres database (for example Neon) and a Vercel Blob store.
 2. Import the repo into Vercel. Set env vars from `.env.example` (`DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`, optional `REVALIDATION_SECRET`).
-3. Build command: `pnpm migrate && pnpm build`.
+3. Build command: `pnpm vercel-build`. It runs migrations on **production** deploys only, then builds. Give preview deployments their own database (for example a Neon branch) in the Preview environment's `DATABASE_URL`, so a pull request can never change the production schema.
 4. Create the first admin: either run `pnpm seed` against the production database with `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` set (the default password is public in this repo), or register at `/admin`.
 5. Point the domain at Vercel; security headers and the scheduled-publish cron are in `vercel.json`.
 6. Turn on point-in-time restore or backups for the production database before real content is written.
@@ -113,7 +114,7 @@ pnpm migrate                    # on deploy (Vercel build command: pnpm migrate 
 - [x] Static generation + tag-based revalidation on publish
 - [x] Metadata, canonical, OG/Twitter, JSON-LD, sitemap, robots, RSS
 - [x] Role-based access, draft → publish workflow, scheduled publishing, versions
-- [x] ESLint + Prettier + TypeScript strict, GitHub Actions CI (lint, typecheck, unit + database tests, build, e2e)
+- [x] ESLint + Prettier + TypeScript strict, GitHub Actions CI (lint, typecheck, unit + database tests, migrations on an empty database with a drift check, build, e2e)
 - [x] Automatic redirects for changed URLs; advertising disclosure labels
 - [x] Security headers; accounts lock for 10 minutes after 5 failed logins
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
