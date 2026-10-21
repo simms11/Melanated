@@ -1,14 +1,36 @@
 import { describe, expect, it } from 'vitest'
 
-import { contentSecurityPolicy, securityHeaders } from '@/lib/securityHeaders'
+import {
+  contentSecurityPolicy,
+  parseFrameAncestors,
+  securityHeaderRules,
+  securityHeaders,
+} from '@/lib/securityHeaders'
 
-const headers = Object.fromEntries(securityHeaders.map((h) => [h.key.toLowerCase(), h.value]))
-const csp = Object.fromEntries(
-  contentSecurityPolicy.split('; ').map((d) => {
-    const [name, ...values] = d.split(' ')
-    return [name, values]
-  }),
-)
+type Header = { key: string; value: string }
+const toMap = (list: Header[]) =>
+  Object.fromEntries(list.map((h) => [h.key.toLowerCase(), h.value]))
+const parseCsp = (policy: string): Record<string, string[]> =>
+  Object.fromEntries(
+    policy.split('; ').map((d) => {
+      const [name, ...values] = d.split(' ')
+      return [name, values]
+    }),
+  )
+
+const headers = toMap(securityHeaders())
+const csp = parseCsp(contentSecurityPolicy())
+
+/** The headers Next sends for a path: every matching rule applies, later rules win per key. */
+const headersFor = (path: string, frameAncestorsEnv?: string) => {
+  const matches = (source: string) =>
+    source === '/(.*)' ||
+    path === source.replace('/:path*', '') ||
+    path.startsWith(source.replace(':path*', ''))
+  return securityHeaderRules(frameAncestorsEnv)
+    .filter((rule) => matches(rule.source))
+    .reduce<Record<string, string>>((acc, rule) => ({ ...acc, ...toMap(rule.headers) }), {})
+}
 
 describe('security headers', () => {
   it('sends the baseline headers', () => {
@@ -41,5 +63,48 @@ describe('security headers', () => {
     expect(csp['connect-src']).toContain('https://vercel.com/api/blob/')
     expect(csp['connect-src']).not.toContain('https://vercel.com')
     expect(csp['connect-src']).not.toContain('*')
+  })
+
+  // A portfolio's live-demo window may frame the public pages, never the admin or the API.
+  describe('FRAME_ANCESTORS', () => {
+    const portfolio = 'https://portfolio.example.com'
+
+    it('accepts only https origins, so nothing else can be injected into the header', () => {
+      expect(
+        parseFrameAncestors(`${portfolio}, http://plain.example.com https://x.example.com/path *`),
+      ).toEqual([portfolio])
+      expect(parseFrameAncestors("https://a.example.com; script-src 'unsafe-eval'")).toEqual([])
+      expect(parseFrameAncestors(undefined)).toEqual([])
+    })
+
+    it('lets the named site frame public pages', () => {
+      for (const path of ['/', '/fashion', '/fashion/some-post', '/community']) {
+        const sent = headersFor(path, portfolio)
+        expect(parseCsp(sent['content-security-policy'])['frame-ancestors']).toEqual([
+          "'self'",
+          portfolio,
+        ])
+        expect(sent['x-frame-options']).toBeUndefined()
+      }
+    })
+
+    it('keeps the admin and the API locked to this site', () => {
+      for (const path of [
+        '/admin',
+        '/admin/login',
+        '/admin/collections/users',
+        '/api/users/login',
+      ]) {
+        const sent = headersFor(path, portfolio)
+        expect(parseCsp(sent['content-security-policy'])['frame-ancestors']).toEqual(["'self'"])
+        expect(sent['x-frame-options']).toBe('SAMEORIGIN')
+      }
+    })
+
+    it('locks every page when it is not set', () => {
+      for (const path of ['/', '/fashion/some-post', '/admin']) {
+        expect(headersFor(path)['x-frame-options']).toBe('SAMEORIGIN')
+      }
+    })
   })
 })
