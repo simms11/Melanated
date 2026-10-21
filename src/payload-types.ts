@@ -71,6 +71,7 @@ export interface Config {
     categories: Category;
     media: Media;
     users: User;
+    reactions: Reaction;
     redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -84,6 +85,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    reactions: ReactionsSelect<false> | ReactionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -176,9 +178,6 @@ export interface Post {
   slug: string;
   category: number | Category;
   authors: (number | User)[];
-  /**
-   * Free-form tags, e.g. "skincare", "autumn".
-   */
   tags?: string[] | null;
   /**
    * UK advertising rules (ASA/CMA): paid or affiliate content must be labelled "Ad" before the reader engages. Shown at the top of the article and on cards.
@@ -284,9 +283,12 @@ export interface Media {
  */
 export interface Category {
   id: number;
+  /**
+   * Display name in navigation and headings. Safe to change at any time.
+   */
   title: string;
   /**
-   * Used in the URL. Generated from the title; edit before publishing if needed.
+   * The web address, e.g. /business. Locked once the section has published posts.
    */
   slug: string;
   /**
@@ -344,6 +346,19 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * Hearts readers have given each post. Updated from the site; read-only here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reactions".
+ */
+export interface Reaction {
+  id: number;
+  post: number | Post;
+  hearts: number;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Old URL → current page. Created automatically when a published URL changes.
@@ -501,6 +516,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'reactions';
+        value: number | Reaction;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -694,6 +713,16 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reactions_select".
+ */
+export interface ReactionsSelect<T extends boolean = true> {
+  post?: T;
+  hearts?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

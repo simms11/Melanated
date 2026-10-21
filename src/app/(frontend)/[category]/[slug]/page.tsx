@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 
+import { HeartButton } from '@/components/HeartButton'
 import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
@@ -139,6 +140,7 @@ export default async function PostPage({ params }: Props) {
           )}
           <time dateTime={post.publishedAt ?? undefined}>{formatDate(post.publishedAt)}</time>
           {post.readTime && <span>{post.readTime} min read</span>}
+          {!isDraft && <HeartButton postId={post.id} />}
         </div>
       </header>
 
@@ -167,6 +169,13 @@ export default async function PostPage({ params }: Props) {
         <div className="prose-editorial mx-auto">
           <RichText data={post.content} />
         </div>
+
+        {!isDraft && (
+          <div className="mx-auto mt-12 flex max-w-prose items-center gap-4">
+            <p className="text-fg-muted text-sm">Enjoyed this story?</p>
+            <HeartButton postId={post.id} variant="prominent" />
+          </div>
+        )}
 
         {authors.length > 0 && (
           <aside className="border-line mx-auto mt-14 max-w-prose border-t pt-8">

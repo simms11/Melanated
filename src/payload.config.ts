@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Posts } from './collections/Posts'
+import { Reactions } from './collections/Reactions'
 import { postPath } from './collections/Posts/postPath'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
@@ -32,7 +33,7 @@ export default buildConfig({
       titleSuffix: ' · Melanated Online',
     },
   },
-  collections: [Posts, Categories, Media, Users],
+  collections: [Posts, Categories, Media, Users, Reactions],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
