@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
+    "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=6144\" next build",
     "vercel-build": "if [ \"$VERCEL_ENV\" = production ]; then pnpm migrate; fi && pnpm build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
@@ -66,7 +66,7 @@
     "vitest": "5.0.1"
   },
   "engines": {
-    "node": ">=20.9.0",
+    "node": "22.x",
     "pnpm": "^9 || ^10"
   },
   "pnpm": {
@@ -75,5 +75,6 @@
       "esbuild",
       "unrs-resolver"
     ]
-  }
+  },
+  "packageManager": "pnpm@10.33.2"
 }
