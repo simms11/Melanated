@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { admins, adminsField, adminsOrSelf, anyone, isAdmin } from '@/access'
+import { admins, adminsField, adminsOrSelf, authenticated, isAdmin } from '@/access'
 import type { User } from '@/payload-types'
 
 /**
@@ -16,14 +16,18 @@ export const Users: CollectionConfig = {
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000, // 10 minutes
   },
+  // What a post's byline gets when it populates `authors`: never email or role.
+  defaultPopulate: { name: true, bio: true, avatar: true, instagram: true },
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'role'],
     group: 'Admin',
   },
   access: {
-    // Public read so author bylines populate on the site; email is hidden at field level below.
-    read: anyone,
+    // Signed-in only. Field-level read rules hide values but not filters, so a public
+    // collection let anyone confirm an email address one guess at a time. Bylines are
+    // populated server-side (src/lib/queries.ts) with only the fields in defaultPopulate.
+    read: authenticated,
     create: admins,
     update: adminsOrSelf,
     delete: admins,

@@ -74,7 +74,9 @@ export const getPosts = unstable_cache(
       page,
       limit,
       depth: 2,
-      overrideAccess: false,
+      // Public data only: the where clause limits this to published posts, and authors
+      // populate through Users.defaultPopulate (no email). Access rules would strip bylines.
+      overrideAccess: true,
     })
   },
   ['posts'],
@@ -85,11 +87,14 @@ const findPostBySlug = async (slug: string, draft: boolean): Promise<Post | null
   const payload = await payloadClient()
   const { docs } = await payload.find({
     collection: 'posts',
-    where: { slug: { equals: slug } },
+    // Outside preview, only a published post may be returned.
+    where: draft
+      ? { slug: { equals: slug } }
+      : { and: [{ slug: { equals: slug } }, { _status: { equals: 'published' } }] },
     limit: 1,
     depth: 2,
     draft,
-    overrideAccess: draft,
+    overrideAccess: true,
   })
   return docs[0] ?? null
 }
