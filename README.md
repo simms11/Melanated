@@ -102,7 +102,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 3. Build command: `pnpm vercel-build`. It runs migrations on **production** deploys only, then builds. Give preview deployments their own database (for example a Neon branch) in the Preview environment's `DATABASE_URL`, so a pull request can never change the production schema.
 4. Create the first admin: either run `pnpm seed` against the production database with `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` set (the default password is public in this repo), or register at `/admin`.
 5. Point the domain at Vercel; security headers and the scheduled-publish cron are in `vercel.json`.
-6. Turn on point-in-time restore or backups for the production database before real content is written.
+6. Turn on point-in-time restore for the production database before real content is written, and follow [`docs/runbooks/operations.md`](docs/runbooks/operations.md) for uptime monitoring, error logs and the restore drill.
 
 ## Definition of done (production checklist)
 
@@ -118,11 +118,12 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [x] Automatic redirects for changed URLs; advertising disclosure labels
 - [x] Security headers; accounts lock for 10 minutes after 5 failed logins
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
-- [ ] Error monitoring (Sentry) and analytics (Plausible), once the domain is live
+- [x] Health endpoint (`/api/health`) and structured server error logs; setup steps in [`docs/runbooks/operations.md`](docs/runbooks/operations.md)
+- [ ] Uptime monitor on `/api/health`, error alerts (Sentry if wanted) and analytics (Plausible), once the domain is live
 - [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text. The policy must cover the newsletter, the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
 - [ ] Final logo SVG and brand name confirmed (currently a text wordmark)
 - [ ] Real photography replacing placeholder imagery (demo photos' rights unconfirmed)
-- [ ] Production database backups confirmed
+- [ ] Production database backups confirmed and one restore drill done (runbook section 3)
 - [ ] Once every subdomain of the client's domain serves HTTPS, add `includeSubDomains` (and only then consider `preload`) to the HSTS header in `vercel.json`
 
 ## Open questions for the client
