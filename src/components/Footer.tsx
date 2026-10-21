@@ -33,12 +33,12 @@ export function Footer({ categories, settings, legalPages }: Props) {
 
         <nav aria-label="Footer — sections">
           <h2 className="eyebrow text-kicker">Explore</h2>
-          <ul className="mt-5 space-y-3">
+          <ul className="mt-2">
             {categories.map((c) => (
               <li key={c.id}>
                 <Link
                   href={`/${c.slug}`}
-                  className="text-ivory/85 hover:text-ivory text-sm no-underline"
+                  className="text-ivory/85 hover:text-ivory inline-flex min-h-11 items-center text-sm no-underline"
                 >
                   {c.title}
                 </Link>
@@ -47,7 +47,7 @@ export function Footer({ categories, settings, legalPages }: Props) {
             <li>
               <Link
                 href="/community"
-                className="text-ivory/85 hover:text-ivory text-sm no-underline"
+                className="text-ivory/85 hover:text-ivory inline-flex min-h-11 items-center text-sm no-underline"
               >
                 Community
               </Link>
@@ -57,12 +57,12 @@ export function Footer({ categories, settings, legalPages }: Props) {
 
         <div>
           <h2 className="eyebrow text-kicker">Contact</h2>
-          <ul className="mt-5 space-y-3 text-sm">
+          <ul className="mt-2 text-sm">
             {settings.contactEmail && (
               <li>
                 <a
                   href={`mailto:${settings.contactEmail}`}
-                  className="text-ivory/85 hover:text-ivory"
+                  className="text-ivory/85 hover:text-ivory inline-flex min-h-11 items-center"
                 >
                   {settings.contactEmail}
                 </a>
@@ -74,14 +74,14 @@ export function Footer({ categories, settings, legalPages }: Props) {
         {socials.length > 0 && (
           <div>
             <h2 className="eyebrow text-kicker">Follow</h2>
-            <ul className="mt-5 space-y-3 text-sm">
+            <ul className="mt-2 text-sm">
               {socials.map((s) => (
                 <li key={s.key}>
                   <a
                     href={settings.social?.[s.key] ?? '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-ivory/85 hover:text-ivory no-underline"
+                    className="text-ivory/85 hover:text-ivory inline-flex min-h-11 items-center no-underline"
                   >
                     {s.label}
                   </a>

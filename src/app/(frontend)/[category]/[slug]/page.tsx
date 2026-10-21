@@ -119,16 +119,23 @@ export default async function PostPage({ params }: Props) {
             Draft preview
           </p>
         )}
-        <nav aria-label="Breadcrumb" className="eyebrow text-kicker">
-          <ol className="flex gap-2">
+        {/* 44px tap targets; the negative margin keeps the visual spacing unchanged. */}
+        <nav aria-label="Breadcrumb" className="eyebrow text-kicker -my-3.5">
+          <ol className="flex items-center gap-2">
             <li>
-              <Link href="/" className="no-underline hover:underline">
+              <Link
+                href="/"
+                className="inline-flex min-h-11 min-w-11 items-center no-underline hover:underline"
+              >
                 Home
               </Link>
             </li>
             {category && (
-              <li className="before:mr-2 before:content-['/']">
-                <Link href={`/${category.slug}`} className="no-underline hover:underline">
+              <li className="flex items-center before:mr-2 before:content-['/']">
+                <Link
+                  href={`/${category.slug}`}
+                  className="inline-flex min-h-11 items-center no-underline hover:underline"
+                >
                   {category.title}
                 </Link>
               </li>

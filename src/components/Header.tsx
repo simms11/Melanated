@@ -19,7 +19,11 @@ export function Header({ categories, settings }: Props) {
   return (
     <header className="dark-section border-line supports-[backdrop-filter]:bg-espresso/90 sticky top-0 z-50 border-b backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between gap-6 lg:h-20">
-        <Link href="/" aria-label={`${settings.siteName}, home`} className="no-underline">
+        <Link
+          href="/"
+          aria-label={`${settings.siteName}, home`}
+          className="inline-flex min-h-11 items-center no-underline"
+        >
           <Logo />
         </Link>
 

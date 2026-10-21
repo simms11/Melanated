@@ -107,7 +107,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 ## Definition of done (production checklist)
 
 - [x] Mobile-first responsive layout, no horizontal scroll at 375px
-- [ ] 44px tap targets everywhere (still smaller: the logo, article breadcrumbs, footer Explore and contact links, compact card titles)
+- [x] 44px tap targets everywhere (cards are one link covering the whole card)
 - [x] Self-hosted fonts via `next/font`, `font-display: swap`
 - [x] Responsive images (`next/image`, WebP, per-slot sizes, fixed aspect ratios to avoid layout shift)
 - [x] Skip link, landmarks, focus-visible styles, required alt text, reduced motion, AA contrast

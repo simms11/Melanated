@@ -11,6 +11,12 @@ type Props = {
   priority?: boolean
 }
 
+/**
+ * The title link covers the whole card (photo included), so the card is one large tap target
+ * and one link for screen readers, instead of a small title plus a duplicate photo link.
+ */
+const stretchedLink = 'no-underline hover:underline after:absolute after:inset-0 after:content-[""]'
+
 export function PostCard({ post, variant = 'standard', priority = false }: Props) {
   const media = asMedia(post.heroImage)
   const category = asCategory(post.category)
@@ -21,14 +27,8 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
 
   if (variant === 'compact') {
     return (
-      <article className="border-line flex gap-4 border-b py-4 last:border-0">
-        {/* Duplicate of the title link beside it: hide it from screen readers and Tab. */}
-        <Link
-          href={href}
-          aria-hidden="true"
-          tabIndex={-1}
-          className="rounded-card bg-cocoa relative block aspect-square w-20 shrink-0 overflow-hidden"
-        >
+      <article className="border-line relative flex gap-4 border-b py-4 last:border-0">
+        <div className="rounded-card bg-cocoa relative aspect-square w-20 shrink-0 overflow-hidden">
           {media && (
             <Image
               src={mediaSrc(media, 'thumbnail')}
@@ -38,7 +38,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
               className="object-cover"
             />
           )}
-        </Link>
+        </div>
         <div className="min-w-0">
           {(category || label) && (
             <p className="eyebrow text-kicker">
@@ -52,7 +52,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
             </p>
           )}
           <h3 className="font-display mt-1 text-base leading-snug">
-            <Link href={href} className="no-underline hover:underline">
+            <Link href={href} className={stretchedLink}>
               {post.title}
             </Link>
           </h3>
@@ -64,13 +64,12 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
   const isFeature = variant === 'feature'
 
   return (
-    <article className={cn('group', isFeature && 'grid gap-6 md:grid-cols-2 md:items-center')}>
-      <Link
-        href={href}
-        aria-hidden="true"
-        tabIndex={-1}
+    <article
+      className={cn('group relative', isFeature && 'grid gap-6 md:grid-cols-2 md:items-center')}
+    >
+      <div
         className={cn(
-          'rounded-card bg-cocoa relative block overflow-hidden',
+          'rounded-card bg-cocoa relative overflow-hidden',
           isFeature ? 'aspect-[4/5] md:aspect-[3/4]' : 'aspect-[4/5]',
         )}
       >
@@ -88,7 +87,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
             className="ease-out-soft object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           />
         )}
-      </Link>
+      </div>
       <div className={cn(isFeature ? 'md:pr-8' : 'mt-4')}>
         {(category || label) && (
           <p className="eyebrow text-kicker">
@@ -102,7 +101,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
           </p>
         )}
         <h3 className={cn('mt-2', isFeature ? 'text-display-lg' : 'text-display-sm')}>
-          <Link href={href} className="no-underline hover:underline">
+          <Link href={href} className={stretchedLink}>
             {post.title}
           </Link>
         </h3>
