@@ -107,7 +107,10 @@ const richText = (...paras: string[]) => ({
   },
 })
 
-const ctx = { disableRevalidate: true }
+// A fresh object per call: hooks write to req.context (the storage plugin sets
+// skipCloudStorage while it saves an upload), and a shared object leaks that into the
+// next call, so every photo after the first was never uploaded.
+const ctx = () => ({ disableRevalidate: true })
 
 /** Demo images are recognised by filename (Payload saves them as .webp, maybe with -1, -2). */
 const demoMediaWhere = () => ({
@@ -118,18 +121,18 @@ async function reset(payload: Awaited<ReturnType<typeof getPayload>>) {
   const posts = await payload.delete({
     collection: 'posts',
     where: { tags: { contains: DEMO_TAG } },
-    context: ctx,
+    context: ctx(),
   })
   const categories = await payload.update({
     collection: 'categories',
     where: { slug: { in: POSTS.map((p) => p.category) } },
     data: { image: null },
-    context: ctx,
+    context: ctx(),
   })
   const media = await payload.delete({
     collection: 'media',
     where: demoMediaWhere(),
-    context: ctx,
+    context: ctx(),
   })
   payload.logger.info(
     `Removed ${posts.docs.length} demo posts and ${media.docs.length} demo images; cleared ${categories.docs.length} category images`,
@@ -177,7 +180,7 @@ async function seed() {
         collection: 'media',
         data: { alt: post.alt },
         filePath: path.join(PHOTO_DIR, post.photo),
-        context: ctx,
+        context: ctx(),
       }))
 
     if (!category.image) {
@@ -185,7 +188,7 @@ async function seed() {
         collection: 'categories',
         id: category.id,
         data: { image: media.id },
-        context: ctx,
+        context: ctx(),
       })
     }
 
@@ -218,7 +221,7 @@ async function seed() {
         publishedAt: new Date().toISOString(),
         _status: 'published',
       },
-      context: ctx,
+      context: ctx(),
     })
     payload.logger.info(`Created demo post: ${post.title}`)
   }
@@ -258,7 +261,7 @@ async function seed() {
         collection: 'posts',
         id: fashion[0].id,
         data: { content: content as never },
-        context: ctx,
+        context: ctx(),
       })
       payload.logger.info('Added a demo gallery to "Colour Drenching"')
     }
