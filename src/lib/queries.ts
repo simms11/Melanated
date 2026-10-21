@@ -59,6 +59,8 @@ type PostListArgs = {
   featured?: boolean
   trending?: boolean
   excludeIds?: Array<number | string>
+  /** Only these posts, returned in this order (e.g. an editor's hand-picked related posts). */
+  ids?: Array<number | string>
 }
 
 /** The fields a post card renders. Lists select only these, so cached lists stay small. */
@@ -93,13 +95,22 @@ const CARD_SELECT = {
  */
 export const findCardPosts = async (
   payload: Awaited<ReturnType<typeof payloadClient>>,
-  { categorySlug, page = 1, limit = 12, featured, trending, excludeIds = [] }: PostListArgs = {},
+  {
+    categorySlug,
+    page = 1,
+    limit = 12,
+    featured,
+    trending,
+    excludeIds = [],
+    ids,
+  }: PostListArgs = {},
 ) => {
   const and: Where[] = [{ _status: { equals: 'published' } }]
   if (categorySlug) and.push({ 'category.slug': { equals: categorySlug } })
   if (featured !== undefined) and.push({ featured: { equals: featured } })
   if (trending !== undefined) and.push({ trending: { equals: trending } })
   if (excludeIds.length) and.push({ id: { not_in: excludeIds } })
+  if (ids) and.push({ id: { in: ids.length ? ids : [-1] } })
 
   const result = await payload.find({
     collection: 'posts',
@@ -113,7 +124,12 @@ export const findCardPosts = async (
     // Public data only: the where clause limits this to published posts.
     overrideAccess: true,
   })
-  return { ...result, docs: result.docs as CardPost[] }
+  const docs = result.docs as CardPost[]
+  if (ids) {
+    const position = new Map(ids.map((id, i) => [String(id), i]))
+    docs.sort((a, b) => (position.get(String(a.id)) ?? 0) - (position.get(String(b.id)) ?? 0))
+  }
+  return { ...result, docs }
 }
 
 export const getPosts = unstable_cache(

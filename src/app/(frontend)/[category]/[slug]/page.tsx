@@ -81,10 +81,15 @@ export default async function PostPage({ params }: Props) {
   const hero = asMedia(post.heroImage)
   const authors = authorsOf(post)
   const disclosure = disclosureText(post)
-  const curated = (post.relatedPosts ?? []).filter((p): p is Post => typeof p === 'object')
+  // Hand-picked related posts go through the card query, so a draft or unpublished pick never
+  // shows on a live article and Ad/Gifted labels are kept. Otherwise, the section's latest.
+  const curatedIds = (post.relatedPosts ?? [])
+    .map((p) => (typeof p === 'object' ? p.id : p))
+    .filter((id) => id !== post.id)
+  const curated = curatedIds.length ? (await getPosts({ ids: curatedIds, limit: 3 })).docs : []
   const related =
     curated.length > 0
-      ? curated.slice(0, 3)
+      ? curated
       : (await getPosts({ categorySlug: category?.slug, limit: 3, excludeIds: [post.id] })).docs
 
   const jsonLd = {
