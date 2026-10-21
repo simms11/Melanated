@@ -33,6 +33,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: '#2a1a12',
+  // The palette is designed, not inverted: stop phone browsers' auto dark mode recolouring it.
+  colorScheme: 'only light',
   width: 'device-width',
   initialScale: 1,
 }
