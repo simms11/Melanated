@@ -44,6 +44,8 @@ jobs:
       # Tests use their own database, so build the schema here as a production deploy does:
       # static pages query posts while building.
       - run: pnpm migrate
+        env:
+          NODE_ENV: production
       - run: pnpm build
 
   migrations:
