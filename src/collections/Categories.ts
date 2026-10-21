@@ -7,6 +7,7 @@ import { APIError, ValidationError } from 'payload'
 
 import { admins, anyone } from '@/access'
 import { slugField } from '@/fields/slug'
+import { uniqueTopLevelSlug } from '@/fields/topLevelSlug'
 import { recordCategoryRedirect } from '@/hooks/redirects'
 import { revalidateAll } from '@/hooks/revalidate'
 
@@ -124,7 +125,7 @@ export const Categories: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeValidate: [lockSlugWhenInUse],
+    beforeValidate: [lockSlugWhenInUse, uniqueTopLevelSlug('categories')],
     beforeDelete: [refuseDeleteWhilePostsExist],
     afterChange: [revalidateAll, recordCategoryRedirect],
     afterDelete: [revalidateAll],

@@ -21,6 +21,8 @@ The **SEO** tab is optional. Leave it blank and the title, excerpt and hero imag
 
 ## Site settings
 
+**Pages** (admins only) are standalone pages such as the privacy policy and terms. Edit them like a post, save drafts while you work, and **Publish** when ready. Tick **Show in footer** to link a page from the footer, and update **Last updated** whenever the content changes materially. A page's web address can't be the same as a section's.
+
 **Site Settings** (admins only) controls the contact email, WhatsApp link, social links and whether authors can publish without review.
 
 ## Accounts

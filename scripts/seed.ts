@@ -11,6 +11,9 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 
+import { PRIVACY, TERMS } from './content/legal'
+import { toLexical } from './lib/lexical'
+
 const CATEGORIES = [
   {
     title: 'Fashion',
@@ -76,6 +79,33 @@ async function seed() {
       context: { disableRevalidate: true },
     })
     payload.logger.info(`Created admin user ${email} — change the password after first login.`)
+  }
+
+  // Draft legal pages, for the client to review, complete and publish. Never overwrites a
+  // page that already exists, so re-running the seed can't undo the client's edits.
+  for (const page of [PRIVACY, TERMS]) {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { slug: { equals: page.slug } },
+      limit: 1,
+      draft: true,
+    })
+    if (existing.totalDocs === 0) {
+      await payload.create({
+        collection: 'pages',
+        data: {
+          title: page.title,
+          slug: page.slug,
+          intro: page.intro,
+          content: toLexical(page.content) as never,
+          showInFooter: true,
+          _status: 'draft',
+        },
+        draft: true,
+        context: { disableRevalidate: true },
+      })
+      payload.logger.info(`Created draft page: ${page.title} (review and publish it in the admin)`)
+    }
   }
 
   payload.logger.info('Seed complete')

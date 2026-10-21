@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
+import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { HeartLimits, HeartVotes } from './collections/Hearts'
 import { Reactions } from './collections/Reactions'
@@ -34,7 +35,7 @@ export default buildConfig({
       titleSuffix: ' · Melanated Online',
     },
   },
-  collections: [Posts, Categories, Media, Users, Reactions, HeartVotes, HeartLimits],
+  collections: [Posts, Pages, Categories, Media, Users, Reactions, HeartVotes, HeartLimits],
   globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -66,13 +67,15 @@ export default buildConfig({
       },
     }),
     seoPlugin({
-      collections: ['posts'],
+      collections: ['posts', 'pages'],
       uploadsCollection: 'media',
       generateTitle: ({ doc }) => `${doc?.title ?? ''} · Melanated Online`,
-      generateDescription: ({ doc }) => doc?.excerpt ?? '',
+      generateDescription: ({ doc }) => doc?.excerpt ?? doc?.intro ?? '',
       generateImage: ({ doc }) => doc?.heroImage,
-      generateURL: async ({ doc, req }) =>
-        `${serverURL}${(await postPath(req.payload, doc, req)) ?? ''}`,
+      generateURL: async ({ collectionConfig, doc, req }) =>
+        collectionConfig?.slug === 'pages'
+          ? `${serverURL}/${doc?.slug ?? ''}`
+          : `${serverURL}${(await postPath(req.payload, doc, req)) ?? ''}`,
     }),
     ...(process.env.BLOB_READ_WRITE_TOKEN
       ? [

@@ -4,7 +4,7 @@ import React from 'react'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { fontClassNames } from '@/lib/fonts'
-import { getCategories, getSiteSettings } from '@/lib/queries'
+import { getCategories, getPublishedPages, getSiteSettings } from '@/lib/queries'
 import { SITE_URL } from '@/lib/utils'
 
 import './globals.css'
@@ -40,7 +40,11 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [settings, categories] = await Promise.all([getSiteSettings(), getCategories()])
+  const [settings, categories, pages] = await Promise.all([
+    getSiteSettings(),
+    getCategories(),
+    getPublishedPages(),
+  ])
 
   return (
     <html lang="en-GB" className={fontClassNames}>
@@ -52,7 +56,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main id="main" className="flex-1">
           {children}
         </main>
-        <Footer categories={categories} settings={settings} />
+        <Footer
+          categories={categories}
+          settings={settings}
+          legalPages={pages.filter((p) => p.showInFooter)}
+        />
       </body>
     </html>
   )

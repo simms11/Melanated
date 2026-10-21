@@ -56,3 +56,10 @@ export const adminsOrUploader: Access = ({ req: { user } }: AccessArgs<User>) =>
   if (isAdmin(user)) return true
   return { uploadedBy: { equals: user.id } }
 }
+
+/** Site content (pages). Public: published only. Admins: everything. Authors: published only. */
+export const adminsOrPublished: Access = ({ req: { user } }: AccessArgs<User>) => {
+  if (isAdmin(user)) return true
+  const published: Where = { _status: { equals: 'published' } }
+  return published
+}

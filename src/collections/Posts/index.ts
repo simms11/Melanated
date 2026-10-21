@@ -1,16 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
 import {
-  BlockquoteFeature,
-  FixedToolbarFeature,
-  HeadingFeature,
-  HorizontalRuleFeature,
-  InlineToolbarFeature,
-  lexicalEditor,
-  LinkFeature,
-  UploadFeature,
-} from '@payloadcms/richtext-lexical'
-import {
   MetaDescriptionField,
   MetaImageField,
   MetaTitleField,
@@ -25,6 +15,7 @@ import {
   authenticated,
   adminsOwnOrPublished,
 } from '@/access'
+import { editorialEditor } from '@/fields/editorialEditor'
 import { slugField } from '@/fields/slug'
 import { recordPostRedirect } from '@/hooks/redirects'
 import { revalidatePost, revalidatePostDelete } from '@/hooks/revalidate'
@@ -99,18 +90,7 @@ export const Posts: CollectionConfig = {
               name: 'content',
               type: 'richText',
               required: true,
-              editor: lexicalEditor({
-                features: ({ rootFeatures }) => [
-                  ...rootFeatures,
-                  HeadingFeature({ enabledHeadingSizes: ['h2', 'h3'] }),
-                  BlockquoteFeature(),
-                  LinkFeature({ enabledCollections: ['posts'] }),
-                  UploadFeature({ collections: { media: { fields: [] } } }),
-                  HorizontalRuleFeature(),
-                  FixedToolbarFeature(),
-                  InlineToolbarFeature(),
-                ],
-              }),
+              editor: editorialEditor,
             },
           ],
         },

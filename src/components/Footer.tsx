@@ -1,12 +1,14 @@
 import Link from 'next/link'
 
-import type { Category, SiteSetting } from '@/payload-types'
+import type { Category, Page, SiteSetting } from '@/payload-types'
 
 import { Logo } from './Logo'
 
 type Props = {
   categories: Category[]
   settings: SiteSetting
+  /** Published pages marked "show in footer" (privacy, terms...). */
+  legalPages: Array<Pick<Page, 'id' | 'title' | 'slug'>>
 }
 
 const SOCIALS: Array<{ key: keyof NonNullable<SiteSetting['social']>; label: string }> = [
@@ -17,7 +19,7 @@ const SOCIALS: Array<{ key: keyof NonNullable<SiteSetting['social']>; label: str
   { key: 'x', label: 'X' },
 ]
 
-export function Footer({ categories, settings }: Props) {
+export function Footer({ categories, settings, legalPages }: Props) {
   const socials = SOCIALS.filter((s) => settings.social?.[s.key])
   const year = new Date().getFullYear()
 
@@ -107,18 +109,20 @@ export function Footer({ categories, settings }: Props) {
           <p>
             © {year} {settings.siteName}. All rights reserved.
           </p>
-          <ul className="flex gap-5">
-            <li>
-              <Link href="/privacy" className="hover:text-ivory no-underline">
-                Privacy
-              </Link>
-            </li>
-            <li>
-              <Link href="/terms" className="hover:text-ivory no-underline">
-                Terms
-              </Link>
-            </li>
-          </ul>
+          {legalPages.length > 0 && (
+            <ul className="flex flex-wrap gap-x-5">
+              {legalPages.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/${p.slug}`}
+                    className="hover:text-ivory flex min-h-11 items-center no-underline"
+                  >
+                    {p.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </footer>

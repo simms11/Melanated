@@ -38,7 +38,7 @@ See [`docs/adr`](docs/adr) for the reasoning behind the main decisions.
 ```
 src/
   access/               access-control helpers (admins, authors, published-only)
-  collections/          Posts, Categories, Media, Users
+  collections/          Posts, Pages, Categories, Media, Users, Reactions, heart votes
   migrations/           Payload migrations (generated; commit with every schema change)
   globals/              SiteSettings (brand, contact, social, editorial)
   fields/               reusable field configs (slug)
@@ -120,7 +120,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
 - [x] Health endpoint (`/api/health`) and structured server error logs; setup steps in [`docs/runbooks/operations.md`](docs/runbooks/operations.md)
 - [ ] Uptime monitor on `/api/health`, error alerts (Sentry if wanted) and analytics (Plausible), once the domain is live
-- [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text. The policy must cover the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
+- [ ] Privacy policy and terms: `pnpm seed` creates them as **draft** Pages written for this site. The client must review them (ideally with a solicitor), fill in every [bracketed] detail and publish them in the admin. The policy must cover the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
 - [ ] Final logo SVG and brand name confirmed (currently a text wordmark)
 - [ ] Real photography replacing placeholder imagery (demo photos' rights unconfirmed)
 - [ ] Production database backups confirmed and one restore drill done (runbook section 3)

@@ -11,7 +11,7 @@ import {
 } from 'next/cache'
 
 import { postPath } from '@/collections/Posts/postPath'
-import type { Category, Post } from '@/payload-types'
+import type { Category, Page, Post } from '@/payload-types'
 
 /**
  * Pages are statically generated and revalidated on publish, so the client never
@@ -20,12 +20,14 @@ import type { Category, Post } from '@/payload-types'
  *  - categories — navigation and category pages
  *  - settings   — site-wide settings (header/footer/contact)
  *  - redirects  — old URLs kept alive after a slug or category change
+ *  - pages      — standalone pages (privacy, terms...) and the footer links to them
  */
 export const CACHE_TAGS = {
   posts: 'posts',
   categories: 'categories',
   settings: 'settings',
   redirects: 'redirects',
+  pages: 'pages',
 } as const
 
 /**
@@ -93,6 +95,18 @@ export const revalidateAll: CollectionAfterChangeHook<Category> &
 export const revalidateSettings: GlobalAfterChangeHook = ({ doc, req: { context, payload } }) => {
   if (context.disableRevalidate) return doc
   revalidateTag(payload, CACHE_TAGS.settings)
+  revalidatePath(payload, '/', 'layout')
+  return doc
+}
+
+export const revalidatePage: CollectionAfterChangeHook<Page> & CollectionAfterDeleteHook<Page> = ({
+  doc,
+  req: { context, payload },
+}) => {
+  if (context.disableRevalidate) return doc
+  if (doc?.slug) revalidatePath(payload, `/${doc.slug}`)
+  revalidateTag(payload, CACHE_TAGS.pages)
+  // Footer links to pages appear on every page.
   revalidatePath(payload, '/', 'layout')
   return doc
 }

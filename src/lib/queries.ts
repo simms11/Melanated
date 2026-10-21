@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { postPath } from '@/collections/Posts/postPath'
 import { CACHE_TAGS } from '@/hooks/revalidate'
-import type { Category, Post, SiteSetting } from '@/payload-types'
+import type { Category, Page, Post, SiteSetting } from '@/payload-types'
 
 /**
  * All frontend reads go through this module so caching is in one place.
@@ -195,4 +195,48 @@ export const getRedirect = unstable_cache(
   },
   ['redirect'],
   { tags: [CACHE_TAGS.redirects, CACHE_TAGS.posts, CACHE_TAGS.categories], revalidate: 3600 },
+)
+
+const findPageBySlug = async (slug: string, draft: boolean): Promise<Page | null> => {
+  const payload = await payloadClient()
+  const { docs } = await payload.find({
+    collection: 'pages',
+    where: draft
+      ? { slug: { equals: slug } }
+      : { and: [{ slug: { equals: slug } }, { _status: { equals: 'published' } }] },
+    limit: 1,
+    depth: 1,
+    draft,
+    overrideAccess: true,
+  })
+  return docs[0] ?? null
+}
+
+const getPublishedPageBySlug = unstable_cache(
+  (slug: string) => findPageBySlug(slug, false),
+  ['page'],
+  { tags: [CACHE_TAGS.pages], revalidate: 3600 },
+)
+
+/** A standalone page; draft reads (preview mode) bypass the cache. */
+export const getPageBySlug = (slug: string, draft = false): Promise<Page | null> =>
+  draft ? findPageBySlug(slug, true) : getPublishedPageBySlug(slug)
+
+/** Published pages: footer links (showInFooter) and the sitemap. */
+export const getPublishedPages = unstable_cache(
+  async () => {
+    const payload = await payloadClient()
+    const { docs } = await payload.find({
+      collection: 'pages',
+      where: { _status: { equals: 'published' } },
+      select: { title: true, slug: true, showInFooter: true, updatedAt: true },
+      sort: 'title',
+      limit: 100,
+      pagination: false,
+      overrideAccess: true,
+    })
+    return docs as Array<Pick<Page, 'id' | 'title' | 'slug' | 'showInFooter' | 'updatedAt'>>
+  },
+  ['pages'],
+  { tags: [CACHE_TAGS.pages], revalidate: 3600 },
 )
