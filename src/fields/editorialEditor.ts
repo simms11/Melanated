@@ -1,5 +1,6 @@
 import {
   BlockquoteFeature,
+  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
   HorizontalRuleFeature,
@@ -9,7 +10,9 @@ import {
   UploadFeature,
 } from '@payloadcms/richtext-lexical'
 
-/** The rich-text editor for posts and pages: headings, quotes, lists, links, inline images. */
+import { GalleryBlock } from '@/blocks/Gallery'
+
+/** The rich-text editor for posts and pages: headings, quotes, lists, links, images, galleries. */
 export const editorialEditor = lexicalEditor({
   features: ({ rootFeatures }) => [
     ...rootFeatures,
@@ -17,6 +20,7 @@ export const editorialEditor = lexicalEditor({
     BlockquoteFeature(),
     LinkFeature({ enabledCollections: ['posts', 'pages'] }),
     UploadFeature({ collections: { media: { fields: [] } } }),
+    BlocksFeature({ blocks: [GalleryBlock] }),
     HorizontalRuleFeature(),
     FixedToolbarFeature(),
     InlineToolbarFeature(),

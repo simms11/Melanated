@@ -1,4 +1,3 @@
-import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import Image from 'next/image'
@@ -6,6 +5,7 @@ import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 
 import { HeartButton } from '@/components/HeartButton'
+import { RichTextContent } from '@/components/RichTextContent'
 import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
@@ -179,7 +179,7 @@ export default async function PostPage({ params }: Props) {
       <div className="container-site mt-12 lg:mt-16">
         <div className="paper-section rounded-card px-5 py-10 sm:px-10 lg:py-16">
           <div className="prose-editorial mx-auto">
-            <RichText data={post.content} />
+            <RichTextContent data={post.content} />
           </div>
 
           {!isDraft && (

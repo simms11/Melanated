@@ -1158,6 +1158,27 @@ export interface TaskSchedulePublish {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  /**
+   * 2 to 12 photos. Each keeps the alt text and credit set on the image.
+   */
+  images: (number | Media)[];
+  /**
+   * Optional, shown under the gallery.
+   */
+  caption?: string | null;
+  /**
+   * On phones, galleries always show 2 across.
+   */
+  columns: '2' | '3';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {

@@ -215,6 +215,47 @@ async function seed() {
     payload.logger.info(`Created demo post: ${post.title}`)
   }
 
+  // Show the gallery block: every demo photo in the fashion post, after its text.
+  const { docs: demoMedia } = await payload.find({
+    collection: 'media',
+    where: { credit: { equals: DEMO_CREDIT } },
+    sort: 'createdAt',
+    limit: 12,
+    depth: 0,
+  })
+  const { docs: fashion } = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: 'demo-colour-drenching' } },
+    limit: 1,
+    depth: 0,
+  })
+  if (fashion[0] && demoMedia.length >= 2) {
+    const content = fashion[0].content as { root: { children: unknown[] } }
+    const hasGallery = content.root.children.some((n) => (n as { type?: string }).type === 'block')
+    if (!hasGallery) {
+      content.root.children.push({
+        type: 'block',
+        version: 2,
+        format: '',
+        fields: {
+          id: 'demo-gallery',
+          blockType: 'gallery',
+          blockName: '',
+          images: demoMedia.map((m) => m.id),
+          caption: 'One colour, five ways.',
+          columns: '3',
+        },
+      })
+      await payload.update({
+        collection: 'posts',
+        id: fashion[0].id,
+        data: { content: content as never },
+        context: ctx,
+      })
+      payload.logger.info('Added a demo gallery to "Colour Drenching"')
+    }
+  }
+
   payload.logger.info('Demo seed complete — restart `pnpm devsafe` to clear the page cache')
   process.exit(0)
 }

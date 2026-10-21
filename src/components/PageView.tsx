@@ -1,6 +1,5 @@
-import { RichText } from '@payloadcms/richtext-lexical/react'
-
 import { formatDate } from '@/lib/utils'
+import { RichTextContent } from './RichTextContent'
 import type { Page } from '@/payload-types'
 
 /** Layout for standalone pages: espresso title band, then the ivory reading surface. */
@@ -26,7 +25,7 @@ export function PageView({ page, isDraft = false }: { page: Page; isDraft?: bool
       <div className="container-site mt-12 lg:mt-16">
         <div className="paper-section rounded-card px-5 py-10 sm:px-10 lg:py-16">
           <div className="prose-editorial mx-auto">
-            <RichText data={page.content} />
+            <RichTextContent data={page.content} />
           </div>
         </div>
       </div>
