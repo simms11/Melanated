@@ -16,18 +16,6 @@ test.describe('Admin', () => {
     await expect(page.getByRole('link', { name: 'Categories', exact: true })).toBeVisible()
   })
 
-  test('the post editor offers a Gallery block', async ({ page }) => {
-    await login({ page, user: testUser })
-    await page.goto('/admin/collections/posts/create')
-    await page.getByRole('button', { name: 'blocks dropdown' }).click()
-    await expect(
-      page
-        .getByRole('button', { name: 'Gallery' })
-        .or(page.getByText('Gallery', { exact: true }))
-        .first(),
-    ).toBeVisible()
-  })
-
   // ADR 0003: with "Authors can publish without review" off, a writer can save drafts but
   // must not be offered Publish or Schedule (a schedule would silently fail at 6am).
   test.describe('what a writer sees on their draft', () => {
@@ -46,6 +34,19 @@ test.describe('Admin', () => {
       await expect(page.locator('#field-title')).toBeVisible()
       await expect(page.getByRole('button', { name: /^publish/i })).toHaveCount(0)
       await expect(page.getByText(/schedule publish/i)).toHaveCount(0)
+    })
+
+    // Uses the seeded draft: opening "Create new" autosaves an empty draft every time.
+    test('the post editor offers a Gallery block', async ({ page }) => {
+      await login({ page, user: testUser })
+      await page.goto(`/admin/collections/posts/${postId}`)
+      await page.getByRole('button', { name: 'blocks dropdown' }).click()
+      await expect(
+        page
+          .getByRole('button', { name: 'Gallery' })
+          .or(page.getByText('Gallery', { exact: true }))
+          .first(),
+      ).toBeVisible()
     })
 
     test('an admin is offered Publish on the same draft', async ({ page }) => {
