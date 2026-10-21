@@ -6,5 +6,8 @@ export default defineConfig({
   test: {
     include: ['tests/int/**/*.int.spec.ts'],
     environment: 'node',
+    // Database tests share one Postgres and one Site Settings global (some toggle the
+    // author publish gate), so test files must not run in parallel.
+    fileParallelism: false,
   },
 })
