@@ -14,6 +14,11 @@ import { getPayload } from 'payload'
 
 import config from '../src/payload.config'
 
+import { assertLocalDatabase } from './lib/assertLocalDatabase'
+
+// Demo content is for local design review only: never seed it into a hosted database.
+assertLocalDatabase('pnpm seed:demo')
+
 const DEMO_TAG = 'demo-content'
 const DEMO_CREDIT = 'DEMO ONLY — rights unconfirmed, do not publish'
 const PHOTO_DIR = path.resolve(import.meta.dirname, '../content/media/demo')
