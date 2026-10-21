@@ -16,6 +16,7 @@ import { HeartLimits, HeartVotes } from './collections/Hearts'
 import { Reactions } from './collections/Reactions'
 import { postPath } from './collections/Posts/postPath'
 import { Users } from './collections/Users'
+import { PageContent } from './globals/PageContent'
 import { SiteSettings } from './globals/SiteSettings'
 import type { User } from './payload-types'
 import { admins, authenticated, isAdmin } from './access'
@@ -36,7 +37,7 @@ export default buildConfig({
     },
   },
   collections: [Posts, Pages, Categories, Media, Users, Reactions, HeartVotes, HeartLimits],
-  globals: [SiteSettings],
+  globals: [SiteSettings, PageContent],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

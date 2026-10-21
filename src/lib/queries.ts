@@ -5,7 +5,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { postPath } from '@/collections/Posts/postPath'
 import { CACHE_TAGS } from '@/hooks/revalidate'
-import type { Category, Page, Post, SiteSetting } from '@/payload-types'
+import type { Category, Page, PageContent, Post, SiteSetting } from '@/payload-types'
 
 /**
  * All frontend reads go through this module so caching is in one place.
@@ -21,6 +21,16 @@ export const getSiteSettings = unstable_cache(
     return payload.findGlobal({ slug: 'site-settings', depth: 1 })
   },
   ['site-settings'],
+  { tags: [CACHE_TAGS.settings], revalidate: 3600 },
+)
+
+/** Editable copy for the home and Community pages (Page content global). */
+export const getPageContent = unstable_cache(
+  async (): Promise<PageContent> => {
+    const payload = await payloadClient()
+    return payload.findGlobal({ slug: 'page-content', depth: 0 })
+  },
+  ['page-content'],
   { tags: [CACHE_TAGS.settings], revalidate: 3600 },
 )
 

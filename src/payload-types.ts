@@ -105,9 +105,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'page-content': PageContent;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    'page-content': PageContentSelect<false> | PageContentSelect<true>;
   };
   locale: null;
   widgets: {
@@ -984,6 +986,63 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Words on the home and Community pages. Admins only.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-content".
+ */
+export interface PageContent {
+  id: number;
+  home: {
+    heroButtonLabel: string;
+    /**
+     * A page on this site, e.g. /community, or #latest for the latest stories.
+     */
+    heroButtonLink: string;
+    featuredLabel: string;
+    trendingTitle: string;
+    latestEyebrow: string;
+    latestTitle: string;
+    emptyTitle: string;
+    emptyBody: string;
+    communityEyebrow: string;
+    communityHeading: string;
+    communityHighlight: string;
+    communityIntro: string;
+    communityButtonLabel: string;
+    /**
+     * A page on this site, e.g. /community, or #latest for the latest stories.
+     */
+    communityButtonLink: string;
+    communityFeatures?:
+      | {
+          title: string;
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  community: {
+    eyebrow: string;
+    heading: string;
+    highlight: string;
+    intro: string;
+    whatsappLabel: string;
+    whatsappPendingLabel: string;
+    emailLabel: string;
+    metaDescription: string;
+    pillars?:
+      | {
+          title: string;
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1009,6 +1068,59 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         authorsCanPublish?: T;
         postsPerPage?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-content_select".
+ */
+export interface PageContentSelect<T extends boolean = true> {
+  home?:
+    | T
+    | {
+        heroButtonLabel?: T;
+        heroButtonLink?: T;
+        featuredLabel?: T;
+        trendingTitle?: T;
+        latestEyebrow?: T;
+        latestTitle?: T;
+        emptyTitle?: T;
+        emptyBody?: T;
+        communityEyebrow?: T;
+        communityHeading?: T;
+        communityHighlight?: T;
+        communityIntro?: T;
+        communityButtonLabel?: T;
+        communityButtonLink?: T;
+        communityFeatures?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  community?:
+    | T
+    | {
+        eyebrow?: T;
+        heading?: T;
+        highlight?: T;
+        intro?: T;
+        whatsappLabel?: T;
+        whatsappPendingLabel?: T;
+        emailLabel?: T;
+        metaDescription?: T;
+        pillars?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

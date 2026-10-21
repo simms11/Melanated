@@ -40,7 +40,7 @@ src/
   access/               access-control helpers (admins, authors, published-only)
   collections/          Posts, Pages, Categories, Media, Users, Reactions, heart votes
   migrations/           Payload migrations (generated; commit with every schema change)
-  globals/              SiteSettings (brand, contact, social, editorial)
+  globals/              SiteSettings (brand, contact, social, editorial), PageContent (home and Community copy)
   fields/               reusable field configs (slug)
   hooks/                cache revalidation and automatic redirect hooks
   lib/                  fonts, queries (all data reads), disclosure labels, utils
