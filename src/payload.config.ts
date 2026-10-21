@@ -82,19 +82,19 @@ export default buildConfig({
           ? `${serverURL}/${doc?.slug ?? ''}`
           : `${serverURL}${(await postPath(req.payload, doc, req)) ?? ''}`,
     }),
-    ...(process.env.BLOB_READ_WRITE_TOKEN
-      ? [
-          vercelBlobStorage({
-            // Media is public ("anyone" can read), so serve files straight from Blob's CDN
-            // rather than through a server function on every request.
-            collections: { media: { disablePayloadAccessControl: true } },
-            token: process.env.BLOB_READ_WRITE_TOKEN,
-            // Browser uploads straight to Blob: Vercel functions reject request bodies over
-            // 4.5 MB, and photos from a phone or camera are often bigger.
-            clientUploads: true,
-          }),
-        ]
-      : []),
+    // Without a token (local development) the plugin is disabled and media is stored on disk.
+    vercelBlobStorage({
+      // The plugin adds columns to media. Add them even when disabled, so the schema (and the
+      // migrations generated locally) match production, where the token is set.
+      alwaysInsertFields: true,
+      // Media is public ("anyone" can read), so serve files straight from Blob's CDN
+      // rather than through a server function on every request.
+      collections: { media: { disablePayloadAccessControl: true } },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      // Browser uploads straight to Blob: Vercel functions reject request bodies over
+      // 4.5 MB, and photos from a phone or camera are often bigger.
+      clientUploads: true,
+    }),
   ],
   // Scheduled publishing queues jobs in the "default" queue; something has to run them.
   // They always run through GET /api/payload-jobs/run — inside a Next request, so the

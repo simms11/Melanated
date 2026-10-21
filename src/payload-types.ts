@@ -235,6 +235,8 @@ export interface Media {
    * Set automatically. Authors can only edit images they uploaded.
    */
   uploadedBy?: (number | null) | User;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -741,6 +743,8 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   credit?: T;
   uploadedBy?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
