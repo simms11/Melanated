@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Privacy policy', alternates: { canon
 
 /**
  * Placeholder. Replace with the client's reviewed policy before launch —
- * the newsletter signup collects email addresses, so UK GDPR applies.
+ * the site sets a heart cookie and keeps hashed network data, so UK GDPR applies.
  */
 export default async function PrivacyPage() {
   const settings = await getSiteSettings()

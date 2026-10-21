@@ -893,14 +893,6 @@ export interface SiteSetting {
     youtube?: string | null;
     x?: string | null;
   };
-  newsletter?: {
-    heading?: string | null;
-    body?: string | null;
-    /**
-     * Form action URL from your newsletter provider (Beehiiv, Mailchimp, etc). Leave blank to hide the signup.
-     */
-    formAction?: string | null;
-  };
   editorial?: {
     /**
      * Off: authors save drafts and an admin publishes. On: authors can publish their own posts directly.
@@ -931,13 +923,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         pinterest?: T;
         youtube?: T;
         x?: T;
-      };
-  newsletter?:
-    | T
-    | {
-        heading?: T;
-        body?: T;
-        formAction?: T;
       };
   editorial?:
     | T

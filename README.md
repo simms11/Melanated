@@ -40,7 +40,7 @@ src/
   access/               access-control helpers (admins, authors, published-only)
   collections/          Posts, Categories, Media, Users
   migrations/           Payload migrations (generated; commit with every schema change)
-  globals/              SiteSettings (brand, contact, social, newsletter, editorial)
+  globals/              SiteSettings (brand, contact, social, editorial)
   fields/               reusable field configs (slug)
   hooks/                cache revalidation and automatic redirect hooks
   lib/                  fonts, queries (all data reads), disclosure labels, utils
@@ -120,7 +120,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [ ] Lighthouse ≥ 90 mobile on home, category and post (run after first deploy)
 - [x] Health endpoint (`/api/health`) and structured server error logs; setup steps in [`docs/runbooks/operations.md`](docs/runbooks/operations.md)
 - [ ] Uptime monitor on `/api/health`, error alerts (Sentry if wanted) and analytics (Plausible), once the domain is live
-- [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text. The policy must cover the newsletter, the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
+- [ ] Privacy policy and terms: `/privacy` and `/terms` are placeholders awaiting the client's reviewed text. The policy must cover the `mo_voter` heart cookie (anonymous, httpOnly, one year) and the hashed network data used to rate-limit hearts (salted daily, deleted after 24 hours)
 - [ ] Final logo SVG and brand name confirmed (currently a text wordmark)
 - [ ] Real photography replacing placeholder imagery (demo photos' rights unconfirmed)
 - [ ] Production database backups confirmed and one restore drill done (runbook section 3)
@@ -131,5 +131,5 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - Brand name: "Melanated Online" (brief) vs "Melanated Magazine" (logo)?
 - Final sections: the brief says Business, the mockup says Entrepreneurship and Lifestyle.
 - Should the contributing writer publish directly? (Site Settings → Editorial → "Authors can publish without review")
-- Newsletter provider, WhatsApp group link, Instagram handle, domain.
+- WhatsApp group link, Instagram handle, domain.
 - Is Community a section with its own articles, or only the community page? (Currently a page, so the home page shows four category tiles.)

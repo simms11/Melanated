@@ -21,7 +21,7 @@ The **SEO** tab is optional. Leave it blank and the title, excerpt and hero imag
 
 ## Site settings
 
-**Site Settings** (admins only) controls the contact email, WhatsApp link, social links, newsletter form and whether authors can publish without review.
+**Site Settings** (admins only) controls the contact email, WhatsApp link, social links and whether authors can publish without review.
 
 ## Accounts
 

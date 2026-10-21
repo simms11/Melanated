@@ -3,7 +3,6 @@ import Link from 'next/link'
 import type { Category, SiteSetting } from '@/payload-types'
 
 import { Logo } from './Logo'
-import { Newsletter } from './Newsletter'
 
 type Props = {
   categories: Category[]
@@ -24,18 +23,6 @@ export function Footer({ categories, settings }: Props) {
 
   return (
     <footer className="dark-section mt-24">
-      {settings.newsletter?.formAction && (
-        <div className="border-line border-b">
-          <div className="container-site py-14">
-            <Newsletter
-              heading={settings.newsletter.heading ?? 'Get the Melanated Edit'}
-              body={settings.newsletter.body ?? ''}
-              action={settings.newsletter.formAction}
-            />
-          </div>
-        </div>
-      )}
-
       <div className="container-site grid gap-12 py-14 md:grid-cols-[1.2fr_1fr_1fr] lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div className="max-w-xs">
           <Logo />

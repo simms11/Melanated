@@ -73,36 +73,6 @@ export const SiteSettings: GlobalConfig = {
           ],
         },
         {
-          label: 'Newsletter',
-          fields: [
-            {
-              name: 'newsletter',
-              type: 'group',
-              fields: [
-                {
-                  name: 'heading',
-                  type: 'text',
-                  defaultValue: 'Get the Melanated Edit',
-                },
-                {
-                  name: 'body',
-                  type: 'text',
-                  defaultValue:
-                    'Be the first to know about new articles, exclusive interviews, events and more.',
-                },
-                {
-                  name: 'formAction',
-                  type: 'text',
-                  admin: {
-                    description:
-                      'Form action URL from your newsletter provider (Beehiiv, Mailchimp, etc). Leave blank to hide the signup.',
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        {
           label: 'Editorial',
           fields: [
             {
