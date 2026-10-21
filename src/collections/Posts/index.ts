@@ -156,7 +156,8 @@ export const Posts: CollectionConfig = {
       name: 'tags',
       type: 'text',
       hasMany: true,
-      admin: { position: 'sidebar', description: 'Free-form tags, e.g. "skincare", "autumn".' },
+      // Hidden until there are enough posts (~30) for topic pages to be useful; the data is kept.
+      admin: { hidden: true },
     },
     {
       name: 'disclosure',

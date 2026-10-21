@@ -44,7 +44,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       modifiedTime: post.updatedAt,
       authors: authorsOf(post).map((a) => a.name),
       section: category?.title,
-      tags: post.tags ?? undefined,
       images: ogImage
         ? [{ url: mediaSrc(ogImage, 'og'), width: 1200, height: 630, alt: ogImage.alt }]
         : undefined,
@@ -168,19 +167,6 @@ export default async function PostPage({ params }: Props) {
         <div className="prose-editorial mx-auto">
           <RichText data={post.content} />
         </div>
-
-        {post.tags && post.tags.length > 0 && (
-          <ul className="mx-auto mt-12 flex max-w-prose flex-wrap gap-2" aria-label="Tags">
-            {post.tags.map((t) => (
-              <li
-                key={t}
-                className="border-line text-fg-muted rounded-full border px-3 py-1 text-xs"
-              >
-                {t}
-              </li>
-            ))}
-          </ul>
-        )}
 
         {authors.length > 0 && (
           <aside className="border-line mx-auto mt-14 max-w-prose border-t pt-8">
