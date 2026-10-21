@@ -35,4 +35,11 @@ describe('security headers', () => {
     expect(csp['form-action']).toEqual(["'self'"])
     expect(csp['base-uri']).toEqual(["'self'"])
   })
+
+  // Direct-to-Blob uploads need the browser to reach Vercel's upload API, and nothing else there.
+  it('allows uploads to the Blob API without opening up all of vercel.com', () => {
+    expect(csp['connect-src']).toContain('https://vercel.com/api/blob/')
+    expect(csp['connect-src']).not.toContain('https://vercel.com')
+    expect(csp['connect-src']).not.toContain('*')
+  })
 })

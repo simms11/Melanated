@@ -20,12 +20,16 @@ import { PageContent } from './globals/PageContent'
 import { SiteSettings } from './globals/SiteSettings'
 import type { User } from './payload-types'
 import { admins, authenticated, isAdmin } from './access'
+import { shouldPushSchema } from './lib/localDatabase'
+import { assertProductionEnv } from './lib/productionEnv'
 import { revalidateRedirects } from './hooks/redirects'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+
+assertProductionEnv()
 
 export default buildConfig({
   serverURL,
@@ -45,8 +49,8 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URL || '' },
-    // Use migrations in production; push schema automatically in dev.
-    push: process.env.NODE_ENV !== 'production',
+    // Push only a local dev database; hosted databases and production use migrations.
+    push: shouldPushSchema(process.env),
   }),
   sharp,
   upload: {
@@ -83,6 +87,9 @@ export default buildConfig({
           vercelBlobStorage({
             collections: { media: true },
             token: process.env.BLOB_READ_WRITE_TOKEN,
+            // Browser uploads straight to Blob: Vercel functions reject request bodies over
+            // 4.5 MB, and photos from a phone or camera are often bigger.
+            clientUploads: true,
           }),
         ]
       : []),

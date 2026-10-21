@@ -15,7 +15,8 @@ export const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
   "font-src 'self' data:",
-  `connect-src 'self'${isDev ? ' ws: wss:' : ''}`,
+  // Admin image uploads go straight from the browser to Vercel Blob's upload API (clientUploads).
+  `connect-src 'self' https://vercel.com/api/blob/${isDev ? ' ws: wss:' : ''}`,
   "media-src 'self' https://*.public.blob.vercel-storage.com",
   "frame-ancestors 'self'",
   "base-uri 'self'",

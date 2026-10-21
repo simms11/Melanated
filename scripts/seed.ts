@@ -1,10 +1,12 @@
 /**
- * Seeds the five editorial categories and a default admin user.
- * Idempotent — safe to run more than once.
+ * Seeds the editorial categories, the first admin user and draft legal pages.
+ * Idempotent: safe to run more than once, never overwrites.
  *
- *   pnpm seed
+ *   pnpm seed                                    # local: development defaults
+ *   NODE_ENV=production SEED_ADMIN_EMAIL=... SEED_ADMIN_PASSWORD=... DATABASE_URL=... pnpm seed
  *
- * Set SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD to control the first admin account.
+ * A hosted database is refused unless it's production mode with a real email and strong
+ * password (scripts/lib/seedPreflight.ts).
  */
 import 'dotenv/config'
 import { getPayload } from 'payload'
@@ -12,6 +14,7 @@ import { getPayload } from 'payload'
 import config from '../src/payload.config'
 
 import { PRIVACY, TERMS } from './content/legal'
+import { DEFAULT_PASSWORD, seedPreflight } from './lib/seedPreflight'
 import { toLexical } from './lib/lexical'
 
 const CATEGORIES = [
@@ -47,6 +50,12 @@ const CATEGORIES = [
 ]
 
 async function seed() {
+  // Before connecting: a push or a default login must never reach a hosted database.
+  const problems = seedPreflight(process.env)
+  if (problems.length) {
+    console.error(`pnpm seed refused:\n- ${problems.join('\n- ')}`)
+    process.exit(1)
+  }
   const payload = await getPayload({ config })
 
   for (const cat of CATEGORIES) {
@@ -66,7 +75,7 @@ async function seed() {
   }
 
   const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com'
-  const password = process.env.SEED_ADMIN_PASSWORD ?? 'ChangeMe123!'
+  const password = process.env.SEED_ADMIN_PASSWORD ?? DEFAULT_PASSWORD
   const users = await payload.find({
     collection: 'users',
     where: { email: { equals: email } },

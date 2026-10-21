@@ -104,7 +104,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 1. Create a Postgres database (for example Neon, with point-in-time restore on) and a Vercel Blob store.
 2. Import the GitHub repo into Vercel. Set the env vars from `.env.example`: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`, optional `REVALIDATION_SECRET`.
 3. Build command: `pnpm vercel-build`. It runs migrations on **production** deploys only, then builds. Give preview deployments their own database (for example a Neon branch) so a pull request can never change the production schema.
-4. Create the first admin by running `pnpm seed` against the production database with `SEED_ADMIN_EMAIL` and a strong `SEED_ADMIN_PASSWORD` set (the default password is public in this repo). This also creates the draft privacy policy and terms.
+4. Create the first admin and the draft privacy policy and terms by running `pnpm seed` against the production database with `NODE_ENV=production`, the real `SEED_ADMIN_EMAIL` and a strong `SEED_ADMIN_PASSWORD` (16+ characters). The seed refuses a hosted database without all three, and Payload never auto-syncs ("pushes") the schema to a hosted database, so migrations stay in charge.
 5. The client reviews the privacy policy and terms, fills in the [bracketed] details and publishes them in the admin.
 6. Point the domain at Vercel. Security headers are in `src/lib/securityHeaders.ts`; the scheduled-publish cron is in `vercel.json`.
 7. Follow [`docs/runbooks/operations.md`](docs/runbooks/operations.md): uptime monitor on `/api/health`, error logs, backups and a restore drill.
