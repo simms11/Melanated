@@ -84,7 +84,8 @@ export default buildConfig({
   // Scheduled publishing queues jobs in the "default" queue; something has to run them.
   // They always run through GET /api/payload-jobs/run — inside a Next request, so the
   // published page's cache is cleared. (Payload's in-process autoRun can't do that.)
-  // - Production: the Vercel cron in vercel.json calls it with `Authorization: Bearer $CRON_SECRET`.
+  // - Production: the Vercel cron in vercel.json calls it daily at 06:00 UTC (the Hobby plan's
+  //   limit) with `Authorization: Bearer $CRON_SECRET`. Scheduled posts go live at that run.
   // - Locally: open /api/payload-jobs/run while signed in as an admin.
   // A scheduled publish runs as the user who scheduled it, so the author publish gate still applies.
   jobs: {
