@@ -27,6 +27,8 @@ type DemoPost = {
   excerpt: string
   featured?: boolean
   trending?: boolean
+  disclosure?: 'ad' | 'affiliate' | 'gifted'
+  disclosurePartner?: string
 }
 
 const POSTS: DemoPost[] = [
@@ -36,6 +38,8 @@ const POSTS: DemoPost[] = [
     category: 'beauty',
     title: 'The Five-Minute Serum Ritual That Changed My Skin',
     slug: 'demo-five-minute-serum-ritual',
+    disclosure: 'gifted',
+    disclosurePartner: 'Example Brand',
     excerpt: 'Fewer products, better order. How to layer a serum so it actually does its job.',
     featured: true,
   },
@@ -45,6 +49,7 @@ const POSTS: DemoPost[] = [
     category: 'fashion',
     title: 'Colour Drenching: Wearing One Shade Head to Toe',
     slug: 'demo-colour-drenching',
+    disclosure: 'affiliate',
     excerpt: 'Monochrome dressing is the boldest quiet move in fashion right now.',
     trending: true,
   },
@@ -195,6 +200,8 @@ async function seed() {
         tags: [DEMO_TAG],
         featured: post.featured ?? false,
         trending: post.trending ?? false,
+        disclosure: post.disclosure ?? 'none',
+        disclosurePartner: post.disclosurePartner,
         publishedAt: new Date().toISOString(),
         _status: 'published',
       },

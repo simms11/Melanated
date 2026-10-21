@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 
 import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
+import { disclosureLabel, disclosureText } from '@/lib/disclosure'
 import { getAllPostSlugs, getPostBySlug, getPosts } from '@/lib/queries'
 import { absoluteUrl, asMedia, formatDate, mediaSrc } from '@/lib/utils'
 import type { Post, User } from '@/payload-types'
@@ -63,6 +64,7 @@ export default async function PostPage({ params }: Props) {
 
   const hero = asMedia(post.heroImage)
   const authors = authorsOf(post)
+  const disclosure = disclosureText(post)
   const curated = (post.relatedPosts ?? []).filter((p): p is Post => typeof p === 'object')
   const related =
     curated.length > 0
@@ -111,6 +113,12 @@ export default async function PostPage({ params }: Props) {
             )}
           </ol>
         </nav>
+        {disclosure && (
+          <p className="border-line text-fg mt-5 max-w-2xl border-l-2 pl-3 text-sm">
+            <strong className="eyebrow mr-2">{disclosureLabel(post)}</strong>
+            {disclosure}
+          </p>
+        )}
         <h1 className="text-display-xl mt-5 max-w-4xl">{post.title}</h1>
         <p className="text-fg-muted mt-6 max-w-2xl text-lg">{post.excerpt}</p>
         <div className="text-fg-muted mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">

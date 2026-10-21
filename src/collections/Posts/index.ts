@@ -166,6 +166,33 @@ export const Posts: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Free-form tags, e.g. "skincare", "autumn".' },
     },
     {
+      name: 'disclosure',
+      type: 'select',
+      required: true,
+      defaultValue: 'none',
+      options: [
+        { label: 'None', value: 'none' },
+        { label: 'Ad — paid partnership', value: 'ad' },
+        { label: 'Ad — contains affiliate links', value: 'affiliate' },
+        { label: 'Gifted — free product, no brand control', value: 'gifted' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description:
+          'UK advertising rules (ASA/CMA): paid or affiliate content must be labelled "Ad" before the reader engages. Shown at the top of the article and on cards.',
+      },
+    },
+    {
+      name: 'disclosurePartner',
+      type: 'text',
+      label: 'Brand',
+      admin: {
+        position: 'sidebar',
+        condition: (data) => data?.disclosure === 'ad' || data?.disclosure === 'gifted',
+        description: 'The brand you partnered with or that sent the product.',
+      },
+    },
+    {
       name: 'publishedAt',
       type: 'date',
       admin: {

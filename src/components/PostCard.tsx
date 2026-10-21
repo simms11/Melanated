@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { Post } from '@/payload-types'
+import { disclosureLabel } from '@/lib/disclosure'
 import { asMedia, cn, formatDate, mediaSrc } from '@/lib/utils'
 
 type Props = {
@@ -19,6 +20,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
   const media = asMedia(post.heroImage)
   const category = typeof post.category === 'object' ? post.category : null
   const href = postHref(post)
+  const label = disclosureLabel(post)
 
   if (variant === 'compact') {
     return (
@@ -38,7 +40,17 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
           )}
         </Link>
         <div className="min-w-0">
-          {category && <p className="eyebrow text-caramel-600">{category.title}</p>}
+          {(category || label) && (
+            <p className="eyebrow text-caramel-600">
+              {category?.title}
+              {label && (
+                <span className="text-fg">
+                  {category ? ' · ' : ''}
+                  {label}
+                </span>
+              )}
+            </p>
+          )}
           <h3 className="font-display mt-1 text-base leading-snug">
             <Link href={href} className="no-underline hover:underline">
               {post.title}
@@ -78,7 +90,17 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
         )}
       </Link>
       <div className={cn(isFeature ? 'md:pr-8' : 'mt-4')}>
-        {category && <p className="eyebrow text-caramel-600">{category.title}</p>}
+        {(category || label) && (
+          <p className="eyebrow text-caramel-600">
+            {category?.title}
+            {label && (
+              <span className="text-fg">
+                {category ? ' · ' : ''}
+                {label}
+              </span>
+            )}
+          </p>
+        )}
         <h3 className={cn('mt-2', isFeature ? 'text-display-lg' : 'text-display-sm')}>
           <Link href={href} className="no-underline hover:underline">
             {post.title}

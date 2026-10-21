@@ -179,6 +179,14 @@ export interface Post {
    */
   tags?: string[] | null;
   /**
+   * UK advertising rules (ASA/CMA): paid or affiliate content must be labelled "Ad" before the reader engages. Shown at the top of the article and on cards.
+   */
+  disclosure: 'none' | 'ad' | 'affiliate' | 'gifted';
+  /**
+   * The brand you partnered with or that sent the product.
+   */
+  disclosurePartner?: string | null;
+  /**
    * Set automatically on first publish. Edit to backdate.
    */
   publishedAt?: string | null;
@@ -529,6 +537,8 @@ export interface PostsSelect<T extends boolean = true> {
   category?: T;
   authors?: T;
   tags?: T;
+  disclosure?: T;
+  disclosurePartner?: T;
   publishedAt?: T;
   featured?: T;
   trending?: T;
