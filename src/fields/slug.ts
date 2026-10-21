@@ -20,7 +20,10 @@ const formatSlug =
   }
 
 /** URL-safe slug, generated from `fallbackField` and editable in the sidebar. */
-export const slugField = (fallbackField = 'title'): Field => ({
+export const slugField = (
+  fallbackField = 'title',
+  description = 'Used in the URL. Generated from the title; edit before publishing if needed.',
+): Field => ({
   name: 'slug',
   type: 'text',
   required: true,
@@ -28,7 +31,7 @@ export const slugField = (fallbackField = 'title'): Field => ({
   index: true,
   admin: {
     position: 'sidebar',
-    description: 'Used in the URL. Generated from the title; edit before publishing if needed.',
+    description,
   },
   hooks: { beforeValidate: [formatSlug(fallbackField)] },
 })

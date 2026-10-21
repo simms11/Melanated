@@ -125,7 +125,8 @@ afterAll(async () => {
   await payload.delete({ collection: 'redirects', where: { from: like }, context: ctx })
   await payload.delete({ collection: 'posts', where: { slug: like }, context: ctx })
   await payload.delete({ collection: 'media', where: { id: { equals: image?.id } }, context: ctx })
-  await payload.delete({ collection: 'categories', where: { title: { equals: P } }, context: ctx })
+  // By slug prefix, so categories from a test that failed midway are removed too.
+  await payload.delete({ collection: 'categories', where: { slug: { like: P } }, context: ctx })
   await payload.delete({ collection: 'users', where: { email: like }, context: ctx })
 })
 
@@ -269,6 +270,53 @@ describe('redirects on URL changes', () => {
 
     const redirect = await redirectFrom(`/${P}-cat-old`)
     expect(redirect?.to?.reference).toMatchObject({ relationTo: 'categories', value: cat.id })
+    await payload.delete({ collection: 'categories', id: cat.id, context: ctx })
+  })
+})
+
+describe('category addresses', () => {
+  it('locks the slug once the category has published posts, but allows renaming', async () => {
+    const cat = await payload.create({
+      collection: 'categories',
+      data: { title: `${P}-locked`, slug: `${P}-locked` },
+      context: ctx,
+    })
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-in-locked`,
+        slug: `${P}-in-locked`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: cat.id,
+        authors: [admin.id],
+        disclosure: 'none',
+        _status: 'published',
+      },
+      context: ctx,
+    })
+
+    await expect(
+      payload.update({
+        collection: 'categories',
+        id: cat.id,
+        data: { slug: `${P}-moved` },
+        context: ctx,
+      }),
+    ).rejects.toMatchObject({
+      data: { errors: [{ path: 'slug', message: expect.stringMatching(/can't change/) }] },
+    })
+
+    const renamed = await payload.update({
+      collection: 'categories',
+      id: cat.id,
+      data: { title: `${P}-renamed` },
+      context: ctx,
+    })
+    expect(renamed.slug).toBe(`${P}-locked`)
+
+    await payload.delete({ collection: 'posts', id: post.id, context: ctx })
     await payload.delete({ collection: 'categories', id: cat.id, context: ctx })
   })
 })

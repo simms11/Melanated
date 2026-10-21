@@ -1,4 +1,5 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
+import { ValidationError } from 'payload'
 
 import { admins, anyone } from '@/access'
 import { slugField } from '@/fields/slug'
@@ -6,9 +7,44 @@ import { recordCategoryRedirect } from '@/hooks/redirects'
 import { revalidateAll } from '@/hooks/revalidate'
 
 /**
- * The five editorial sections: Fashion, Beauty, Wellness, Business, Community.
+ * The editorial sections (Fashion, Beauty, Wellness, Business). Community is a page, not a category.
  * Seeded on first run; admins can tweak copy and imagery but the set is meant to stay small.
  */
+
+/**
+ * The slug is in every post URL under the category. Once published posts use it, it's locked:
+ * rename the category freely (the title is the display name), but the address stays put.
+ */
+const lockSlugWhenInUse: CollectionBeforeValidateHook = async ({
+  data,
+  originalDoc,
+  operation,
+  req,
+}) => {
+  if (operation !== 'update' || !originalDoc?.slug || !data?.slug) return data
+  if (data.slug === originalDoc.slug) return data
+  const { totalDocs } = await req.payload.count({
+    collection: 'posts',
+    where: {
+      and: [{ category: { equals: originalDoc.id } }, { _status: { equals: 'published' } }],
+    },
+    req,
+  })
+  if (totalDocs > 0) {
+    throw new ValidationError({
+      collection: 'categories',
+      errors: [
+        {
+          path: 'slug',
+          message: `This address is used by ${totalDocs} published ${totalDocs === 1 ? 'post' : 'posts'} and can't change. Edit the title to rename the section.`,
+        },
+      ],
+      req,
+    })
+  }
+  return data
+}
+
 export const Categories: CollectionConfig = {
   slug: 'categories',
   admin: {
@@ -28,8 +64,14 @@ export const Categories: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description: 'Display name in navigation and headings. Safe to change at any time.',
+      },
     },
-    slugField('title'),
+    slugField(
+      'title',
+      'The web address, e.g. /business. Locked once the section has published posts.',
+    ),
     {
       name: 'tagline',
       type: 'text',
@@ -58,6 +100,7 @@ export const Categories: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeValidate: [lockSlugWhenInUse],
     afterChange: [revalidateAll, recordCategoryRedirect],
     afterDelete: [revalidateAll],
   },
