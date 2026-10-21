@@ -143,12 +143,15 @@ async function seed() {
     process.exit(0)
   }
 
+  // The site admin from `pnpm seed`, never "any admin": test runs create and delete their
+  // own admins, which would leave demo posts with no author.
+  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com'
   const { docs: admins } = await payload.find({
     collection: 'users',
-    where: { role: { equals: 'admin' } },
+    where: { email: { equals: adminEmail } },
     limit: 1,
   })
-  if (!admins[0]) throw new Error('No admin user — run `pnpm seed` first.')
+  if (!admins[0]) throw new Error(`No admin ${adminEmail}: run \`pnpm seed\` first.`)
 
   for (const post of POSTS) {
     const { docs: cats } = await payload.find({
