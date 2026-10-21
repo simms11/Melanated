@@ -81,6 +81,17 @@ export default function StyleguidePage() {
           <button className="btn-primary">Primary on dark</button>
           <button className="btn-outline-light">Outline light</button>
         </div>
+        <div className="caramel-section rounded-card mt-6 p-6">
+          <p className="eyebrow text-kicker">Caramel section</p>
+          <p className="text-display-sm text-fg mt-3">
+            A community of <em className="font-script text-flourish not-italic">go-getters</em>
+          </p>
+          <p className="text-fg-muted mt-2 max-w-prose text-sm">
+            Accent band between ivory and espresso. Butter fails contrast here, so CTAs use the dark
+            button.
+          </p>
+          <button className="btn-dark mt-5">Dark on caramel</button>
+        </div>
       </section>
 
       <section className="mt-16">

@@ -22,13 +22,13 @@ export async function CategoryListing({ slug, page }: { slug: string; page: numb
 
   return (
     <>
-      <section className="dark-section">
+      <section className="caramel-section">
         <div className="container-site grid gap-8 py-14 lg:grid-cols-[1fr_1fr] lg:items-end lg:py-20">
           <div>
-            <p className="eyebrow text-butter">Section</p>
-            <h1 className="text-display-xl text-ivory mt-4">{category.title}</h1>
+            <p className="eyebrow text-kicker">Section</p>
+            <h1 className="text-display-xl text-fg mt-4">{category.title}</h1>
             {category.description && (
-              <p className="text-nude mt-5 max-w-lg lg:text-lg">{category.description}</p>
+              <p className="text-fg-muted mt-5 max-w-lg lg:text-lg">{category.description}</p>
             )}
           </div>
           {image && (

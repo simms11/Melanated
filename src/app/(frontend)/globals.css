@@ -28,6 +28,9 @@
   --color-fg-muted: var(--color-cocoa);
   --color-line: var(--color-cream-200);
   --color-accent: var(--color-caramel);
+  /* Section-aware accents — overridden by dark-section / caramel-section */
+  --color-kicker: var(--color-caramel-600); /* eyebrows: must stay AA at 11px */
+  --color-flourish: var(--color-caramel); /* script words: display sizes only */
 
   /* Type */
   --font-display: var(--font-playfair), 'Times New Roman', Georgia, serif;
@@ -152,6 +155,20 @@
   --color-fg: var(--color-ivory);
   --color-fg-muted: var(--color-nude);
   --color-line: color-mix(in oklab, var(--color-ivory) 15%, transparent);
+  --color-kicker: var(--color-butter);
+  --color-flourish: var(--color-butter);
+}
+
+/* Warm accent band between the ivory body and espresso sections.
+   Contrast on caramel: espresso-900 5.8:1, espresso 5.2:1, ivory 3.0:1 (large text only),
+   butter 2.0:1 — so CTAs inside use btn-dark, not btn-primary. */
+@utility caramel-section {
+  @apply bg-caramel text-espresso-900;
+  --color-fg: var(--color-espresso-900);
+  --color-fg-muted: var(--color-espresso);
+  --color-line: color-mix(in oklab, var(--color-espresso-900) 30%, transparent);
+  --color-kicker: var(--color-espresso-900);
+  --color-flourish: var(--color-ivory);
 }
 
 @utility skip-link {

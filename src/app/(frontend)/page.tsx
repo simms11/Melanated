@@ -136,18 +136,18 @@ export default async function HomePage() {
       )}
 
       {/* Community */}
-      <section className="dark-section">
+      <section className="caramel-section">
         <div className="container-site grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
           <div>
-            <p className="eyebrow text-butter">More than a magazine</p>
-            <h2 className="text-display-lg text-ivory mt-4">
-              A community of <em className="font-script text-butter not-italic">go-getters</em>
+            <p className="eyebrow text-kicker">More than a magazine</p>
+            <h2 className="text-display-lg text-fg mt-4">
+              A community of <em className="font-script text-flourish not-italic">go-getters</em>
             </h2>
-            <p className="text-nude mt-5 max-w-md">
+            <p className="text-fg-muted mt-5 max-w-md">
               Join a community of ambitious, creative and empowered Black women building the life
               they love.
             </p>
-            <Link href="/community" className="btn-primary mt-8">
+            <Link href="/community" className="btn-dark mt-8">
               Join the community
             </Link>
           </div>
@@ -158,11 +158,11 @@ export default async function HomePage() {
               ['Networking', 'Connect with like-minded women.'],
               ['Business support', 'Take your vision to the next level.'],
             ].map(([t, d]) => (
-              <li key={t} className="border-butter/50 border-l pl-4">
-                <h3 className="text-ivory font-sans text-sm font-semibold tracking-wide uppercase">
+              <li key={t} className="border-line border-l pl-4">
+                <h3 className="text-fg font-sans text-sm font-semibold tracking-wide uppercase">
                   {t}
                 </h3>
-                <p className="text-nude mt-1 text-sm">{d}</p>
+                <p className="text-fg-muted mt-1 text-sm">{d}</p>
               </li>
             ))}
           </ul>
