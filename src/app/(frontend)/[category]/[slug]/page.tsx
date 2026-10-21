@@ -10,7 +10,7 @@ import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
 import { getAllPostSlugs, getPostBySlug, getPosts, getRedirect } from '@/lib/queries'
-import { absoluteUrl, asMedia, formatDate, mediaSrc } from '@/lib/utils'
+import { absoluteUrl, asMedia, formatDate, mediaSrc, serializeJsonLd } from '@/lib/utils'
 import type { Post, User } from '@/payload-types'
 
 type Props = { params: Promise<{ category: string; slug: string }> }
@@ -93,7 +93,7 @@ export default async function PostPage({ params }: Props) {
     <article>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
 
       <header className="container-site pt-10 lg:pt-16">

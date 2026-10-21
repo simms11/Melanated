@@ -26,5 +26,18 @@ export const mediaSrc = (media: Media | null, size?: keyof NonNullable<Media['si
   return origin && url.startsWith(`${origin}/`) ? url.slice(origin.length) : url
 }
 
+/**
+ * JSON for an inline <script type="application/ld+json">. JSON.stringify leaves "<" alone, so
+ * an author-controlled string like "</script><script>…" would end the block and run as code.
+ * Escaping these characters keeps the JSON identical once parsed.
+ */
+export const serializeJsonLd = (data: unknown): string =>
+  JSON.stringify(data)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029')
+
 export const cn = (...classes: Array<string | false | null | undefined>): string =>
   classes.filter(Boolean).join(' ')
