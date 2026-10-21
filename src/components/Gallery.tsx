@@ -1,33 +1,28 @@
-import Image from 'next/image'
-
-import { asMedia, cn, mediaSrc } from '@/lib/utils'
+import { asMedia, mediaSrc } from '@/lib/utils'
 import type { GalleryBlock } from '@/payload-types'
 
+import { GalleryGrid } from './GalleryGrid'
+
 /**
- * Photos shown together inside an article. Each image keeps its own alt text; credits are
- * listed once underneath so photographers are named without cluttering the grid.
+ * Photos shown together inside an article, with a full-screen viewer. Each image keeps its
+ * own alt text; any credits are listed once underneath.
  */
 export function Gallery({ images, caption, columns }: GalleryBlock) {
   const media = (images ?? []).map(asMedia).filter((m) => m !== null)
   if (media.length === 0) return null
   const credits = [...new Set(media.map((m) => m.credit?.trim()).filter(Boolean))]
-  const three = columns === '3'
+  const items = media.map((m) => ({
+    id: m.id,
+    thumb: mediaSrc(m, 'card'),
+    full: mediaSrc(m),
+    alt: m.alt,
+    width: m.width,
+    height: m.height,
+  }))
 
   return (
     <figure className="not-prose my-10">
-      <ul className={cn('grid grid-cols-2 gap-2 sm:gap-3', three && 'md:grid-cols-3')}>
-        {media.map((m) => (
-          <li key={m.id} className="rounded-card bg-cocoa relative aspect-[4/5] overflow-hidden">
-            <Image
-              src={mediaSrc(m, 'card')}
-              alt={m.alt}
-              fill
-              sizes={three ? '(min-width: 768px) 14rem, 50vw' : '(min-width: 768px) 21rem, 50vw'}
-              className="object-cover"
-            />
-          </li>
-        ))}
-      </ul>
+      <GalleryGrid items={items} three={columns === '3'} />
       {(caption || credits.length > 0) && (
         <figcaption className="text-fg-muted mt-3 text-sm">
           {caption}

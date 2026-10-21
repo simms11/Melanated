@@ -6,7 +6,9 @@ import { notFound, permanentRedirect } from 'next/navigation'
 
 import { HeartButton } from '@/components/HeartButton'
 import { RichTextContent } from '@/components/RichTextContent'
+import { ShareButton } from '@/components/ShareButton'
 import { PostCard } from '@/components/PostCard'
+import { ReadingProgress } from '@/components/ReadingProgress'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
 import { getAllPostSlugs, getPostBySlug, getPosts, getRedirect } from '@/lib/queries'
@@ -99,7 +101,8 @@ export default async function PostPage({ params }: Props) {
   }
 
   return (
-    <article>
+    <article id="article">
+      <ReadingProgress targetId="article" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
@@ -150,6 +153,7 @@ export default async function PostPage({ params }: Props) {
           <time dateTime={post.publishedAt ?? undefined}>{formatDate(post.publishedAt)}</time>
           {post.readTime && <span>{post.readTime} min read</span>}
           {!isDraft && <HeartButton postId={post.id} />}
+          {!isDraft && <ShareButton title={post.title} path={`/${category.slug}/${post.slug}`} />}
         </div>
       </header>
 
@@ -183,9 +187,14 @@ export default async function PostPage({ params }: Props) {
           </div>
 
           {!isDraft && (
-            <div className="mx-auto mt-12 flex max-w-prose items-center gap-4">
+            <div className="mx-auto mt-12 flex max-w-prose flex-wrap items-center gap-x-4 gap-y-2">
               <p className="text-fg-muted text-sm">Enjoyed this story?</p>
               <HeartButton postId={post.id} variant="prominent" />
+              <ShareButton
+                title={post.title}
+                path={`/${category.slug}/${post.slug}`}
+                variant="prominent"
+              />
             </div>
           )}
 
