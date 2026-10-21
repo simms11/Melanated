@@ -1,26 +1,49 @@
 import 'dotenv/config'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { GET as health } from '@/app/api/health/route'
 import { onRequestError } from '@/instrumentation'
 
-describe('GET /api/health', () => {
-  // What an uptime monitor polls: proves the app *and* its database answer.
-  it('reports ok when the database answers, and is never cached', async () => {
-    const res = await health()
-    expect(res.status).toBe(200)
-    expect(res.headers.get('cache-control')).toBe('no-store')
-    expect(await res.json()).toEqual({ status: 'ok', database: 'ok' })
-  })
-})
-
-describe('GET /api/health when the database is down', () => {
+describe('GET /api/health (frequent uptime check)', () => {
   afterEach(() => {
     vi.doUnmock('payload')
     vi.resetModules()
   })
 
-  it('returns 503 so the monitor alerts, without leaking the error', async () => {
+  // Polled every few minutes. It must never touch the database: on Neon's free plan a
+  // frequent database ping keeps it awake all month and uses up the compute allowance.
+  it('reports the site is up without touching the database', async () => {
+    vi.resetModules()
+    const getPayload = vi.fn(async () => {
+      throw new Error('the uptime check must not connect to the database')
+    })
+    vi.doMock('payload', async (orig) => ({
+      ...(await orig<typeof import('payload')>()),
+      getPayload,
+    }))
+    const { GET } = await import('@/app/api/health/route')
+    const res = await GET()
+    expect(res.status).toBe(200)
+    expect(res.headers.get('cache-control')).toBe('no-store')
+    expect(await res.json()).toEqual({ status: 'ok' })
+    expect(getPayload).not.toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/health/database (infrequent database check)', () => {
+  afterEach(() => {
+    vi.doUnmock('payload')
+    vi.resetModules()
+  })
+
+  it('reports ok when the database answers, and is never cached', async () => {
+    const { GET } = await import('@/app/api/health/database/route')
+    const res = await GET()
+    expect(res.status).toBe(200)
+    expect(res.headers.get('cache-control')).toBe('no-store')
+    expect(await res.json()).toEqual({ status: 'ok', database: 'ok' })
+  })
+
+  it('returns 503 when the database is down, without leaking the error', async () => {
     vi.resetModules()
     vi.doMock('payload', async (orig) => ({
       ...(await orig<typeof import('payload')>()),
@@ -28,11 +51,10 @@ describe('GET /api/health when the database is down', () => {
         throw new Error('connect ECONNREFUSED 10.0.0.5:5432 password=hunter2')
       },
     }))
-    const { GET } = await import('@/app/api/health/route')
+    const { GET } = await import('@/app/api/health/database/route')
     const res = await GET()
     expect(res.status).toBe(503)
-    const body = JSON.stringify(await res.json())
-    expect(body).toBe('{"status":"error","database":"unreachable"}')
+    expect(JSON.stringify(await res.json())).toBe('{"status":"error","database":"unreachable"}')
   })
 })
 
