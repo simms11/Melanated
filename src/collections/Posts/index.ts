@@ -200,7 +200,8 @@ export const Posts: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
-      access: { update: adminsField },
+      // Admin-only on create too, or an author could feature their own post when creating it.
+      access: { create: adminsField, update: adminsField },
       admin: {
         position: 'sidebar',
         description: 'Show as the large featured story on the home page.',
@@ -210,7 +211,8 @@ export const Posts: CollectionConfig = {
       name: 'trending',
       type: 'checkbox',
       defaultValue: false,
-      access: { update: adminsField },
+      // Admin-only on create too, or an author could feature their own post when creating it.
+      access: { create: adminsField, update: adminsField },
       admin: { position: 'sidebar', description: 'Pin in the "Trending Now" list.' },
     },
     {

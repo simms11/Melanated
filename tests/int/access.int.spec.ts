@@ -204,3 +204,39 @@ describe('author edits to live posts', () => {
     expect(latest.title).toBe('Proposed title')
   })
 })
+
+describe('editorial placement', () => {
+  // Featured and Trending decide what the home page shows: admin-only (ADR 0003).
+  // Update was restricted, but an author could still set both when creating a post.
+  it('ignores Featured and Trending when an author creates a post', async () => {
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-pushy`,
+        slug: `${P}-pushy`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: category.id,
+        authors: [author.id],
+        disclosure: 'none',
+        featured: true,
+        trending: true,
+        _status: 'draft',
+      },
+      draft: true,
+      user: author,
+      overrideAccess: false,
+      context: ctx,
+    })
+
+    const saved = await payload.findByID({
+      collection: 'posts',
+      id: post.id,
+      depth: 0,
+      draft: true,
+    })
+    expect(saved.featured).toBe(false)
+    expect(saved.trending).toBe(false)
+  })
+})
