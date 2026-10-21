@@ -32,6 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
+  // Must be a literal (it's a <meta> tag); matches --color-espresso, the header.
   themeColor: '#2a1a12',
   // The palette is designed, not inverted: stop phone browsers' auto dark mode recolouring it.
   colorScheme: 'only light',

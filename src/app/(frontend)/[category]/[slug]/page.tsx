@@ -107,7 +107,7 @@ export default async function PostPage({ params }: Props) {
 
   return (
     <article id="article">
-      <ReadingProgress targetId="article" />
+      <ReadingProgress targetId="article-body" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
@@ -186,7 +186,7 @@ export default async function PostPage({ params }: Props) {
       {/* Long-form reads on an ivory "paper" surface: caramel is the brand base, but
           sustained reading needs a calmer, higher-contrast ground. */}
       <div className="container-site mt-12 lg:mt-16">
-        <div className="paper-section rounded-card px-5 py-10 sm:px-10 lg:py-16">
+        <div id="article-body" className="paper-section rounded-card px-5 py-10 sm:px-10 lg:py-16">
           <div className="prose-editorial mx-auto">
             <RichTextContent data={post.content} />
           </div>

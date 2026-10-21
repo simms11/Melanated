@@ -21,6 +21,10 @@
   --color-espresso-900: #1c110b;
   --color-gold: #d4a017;
   --color-gold-300: #e0b43a;
+  /* Wordmark gradient stops */
+  --color-gold-700: #b98a1e;
+  --color-gold-200: #e9c45a;
+  --color-gold-600: #c99a2b;
 
   /* Semantic: the cocoa body. Contrast on cocoa: ivory 9.5:1, nude 6.6:1, gold 4.25:1
      (large text, lines, icons and buttons only, never small text), so small labels are nude.

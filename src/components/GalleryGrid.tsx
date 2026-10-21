@@ -22,6 +22,7 @@ export type GalleryItem = {
  */
 export function GalleryGrid({ items, three }: { items: GalleryItem[]; three: boolean }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
   const triggers = useRef<Array<HTMLAnchorElement | null>>([])
   const touchX = useRef<number | null>(null)
   const opener = useRef<number | null>(null)
@@ -59,6 +60,12 @@ export function GalleryGrid({ items, three }: { items: GalleryItem[]; three: boo
   }, [])
 
   const current = index === null ? null : items[index]
+  const isOpen = index !== null
+
+  // showModal() runs before React renders the contents, so move focus once they exist.
+  useEffect(() => {
+    if (isOpen) closeRef.current?.focus()
+  }, [isOpen])
 
   return (
     <>
@@ -109,8 +116,10 @@ export function GalleryGrid({ items, three }: { items: GalleryItem[]; three: boo
             <div className="flex items-center justify-between px-4 py-3">
               <p aria-live="polite" className="text-sm">
                 {index! + 1} of {items.length}
+                <span className="sr-only">: {current.alt}</span>
               </p>
               <button
+                ref={closeRef}
                 type="button"
                 onClick={close}
                 className="flex min-h-11 min-w-11 items-center justify-center rounded-full text-2xl"

@@ -10,7 +10,8 @@ export function Logo({ className }: { className?: string }) {
       <span
         className="font-sans text-[1.35rem] font-semibold tracking-[0.08em] uppercase lg:text-[1.6rem]"
         style={{
-          backgroundImage: 'linear-gradient(90deg, #b98a1e 0%, #e9c45a 45%, #c99a2b 100%)',
+          backgroundImage:
+            'linear-gradient(90deg, var(--color-gold-700) 0%, var(--color-gold-200) 45%, var(--color-gold-600) 100%)',
           WebkitBackgroundClip: 'text',
           backgroundClip: 'text',
           color: 'transparent',

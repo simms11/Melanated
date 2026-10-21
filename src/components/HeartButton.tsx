@@ -85,7 +85,7 @@ export function HeartButton({
       disabled={hearts == null}
       aria-pressed={hearted}
       aria-busy={pending}
-      aria-label={`${hearted ? 'Remove your heart' : 'Heart this story'}, ${count} ${count === 1 ? 'heart' : 'hearts'}`}
+      aria-label={`Heart this story, ${count} ${count === 1 ? 'heart' : 'hearts'}`}
       className={cn(
         'group inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full transition-colors disabled:opacity-60',
         variant === 'prominent' ? 'border-line hover:border-fg border px-5 py-2' : '-ml-2 px-2',
