@@ -84,4 +84,26 @@ describe('page content', () => {
       }),
     ).rejects.toThrow()
   })
+
+  // A bare "@handle" became a broken relative link in the footer (review S10).
+  it('only accepts full https:// addresses for social links', async () => {
+    await expect(
+      payload.updateGlobal({
+        slug: 'site-settings',
+        data: { social: { instagram: '@melanatedmaguk' } },
+        context: ctx,
+      }),
+    ).rejects.toThrow()
+    const ok = await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { social: { instagram: 'https://instagram.com/melanatedmaguk' } },
+      context: ctx,
+    })
+    expect(ok.social?.instagram).toBe('https://instagram.com/melanatedmaguk')
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { social: { instagram: null } },
+      context: ctx,
+    })
+  })
 })

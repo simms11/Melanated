@@ -1,7 +1,21 @@
-import type { GlobalConfig } from 'payload'
+import type { Field, GlobalConfig, TextFieldSingleValidation } from 'payload'
 
 import { admins, anyone } from '@/access'
 import { revalidateSettings } from '@/hooks/revalidate'
+
+/** Social links must be full addresses: "@handle" would become a broken link in the footer. */
+const httpsUrl: TextFieldSingleValidation = (value) =>
+  !value || /^https:\/\/[^\s/$.?#].[^\s]*$/i.test(value)
+    ? true
+    : 'Use the full address, starting with https:// (for example https://instagram.com/yourname).'
+
+const socialLink = (name: string, label: string, placeholder: string): Field => ({
+  name,
+  type: 'text',
+  label,
+  validate: httpsUrl,
+  admin: { placeholder },
+})
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -59,15 +73,11 @@ export const SiteSettings: GlobalConfig = {
               name: 'social',
               type: 'group',
               fields: [
-                {
-                  name: 'instagram',
-                  type: 'text',
-                  admin: { placeholder: 'https://instagram.com/...' },
-                },
-                { name: 'tiktok', type: 'text' },
-                { name: 'pinterest', type: 'text' },
-                { name: 'youtube', type: 'text' },
-                { name: 'x', type: 'text', label: 'X (Twitter)' },
+                socialLink('instagram', 'Instagram', 'https://instagram.com/...'),
+                socialLink('tiktok', 'TikTok', 'https://www.tiktok.com/@...'),
+                socialLink('pinterest', 'Pinterest', 'https://pinterest.com/...'),
+                socialLink('youtube', 'YouTube', 'https://youtube.com/@...'),
+                socialLink('x', 'X (Twitter)', 'https://x.com/...'),
               ],
             },
           ],
