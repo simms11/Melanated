@@ -5,8 +5,8 @@
  *   pnpm seed:demo           # create (idempotent)
  *   pnpm seed:demo --reset   # remove everything this script created
  *
- * Photos are read from content/media/demo/ (git-ignored — image rights are unconfirmed,
- * so nothing here may ship to production). Run `pnpm seed` first for categories + admin.
+ * Photos are read from content/media/demo/ (git-ignored; placeholders for local design
+ * review only). Run `pnpm seed` first for categories + admin.
  */
 import 'dotenv/config'
 import path from 'node:path'
@@ -20,7 +20,6 @@ import { assertLocalDatabase } from './lib/assertLocalDatabase'
 assertLocalDatabase('pnpm seed:demo')
 
 const DEMO_TAG = 'demo-content'
-const DEMO_CREDIT = 'DEMO ONLY — rights unconfirmed, do not publish'
 const PHOTO_DIR = path.resolve(import.meta.dirname, '../content/media/demo')
 
 type DemoPost = {
@@ -110,6 +109,11 @@ const richText = (...paras: string[]) => ({
 
 const ctx = { disableRevalidate: true }
 
+/** Demo images are recognised by filename (Payload saves them as .webp, maybe with -1, -2). */
+const demoMediaWhere = () => ({
+  or: POSTS.map((p) => ({ filename: { like: path.parse(p.photo).name } })),
+})
+
 async function reset(payload: Awaited<ReturnType<typeof getPayload>>) {
   const posts = await payload.delete({
     collection: 'posts',
@@ -124,7 +128,7 @@ async function reset(payload: Awaited<ReturnType<typeof getPayload>>) {
   })
   const media = await payload.delete({
     collection: 'media',
-    where: { credit: { equals: DEMO_CREDIT } },
+    where: demoMediaWhere(),
     context: ctx,
   })
   payload.logger.info(
@@ -160,14 +164,14 @@ async function seed() {
 
     const { docs: existingMedia } = await payload.find({
       collection: 'media',
-      where: { and: [{ credit: { equals: DEMO_CREDIT } }, { alt: { equals: post.alt } }] },
+      where: { and: [demoMediaWhere(), { alt: { equals: post.alt } }] },
       limit: 1,
     })
     const media =
       existingMedia[0] ??
       (await payload.create({
         collection: 'media',
-        data: { alt: post.alt, credit: DEMO_CREDIT },
+        data: { alt: post.alt },
         filePath: path.join(PHOTO_DIR, post.photo),
         context: ctx,
       }))
@@ -218,7 +222,7 @@ async function seed() {
   // Show the gallery block: every demo photo in the fashion post, after its text.
   const { docs: demoMedia } = await payload.find({
     collection: 'media',
-    where: { credit: { equals: DEMO_CREDIT } },
+    where: demoMediaWhere(),
     sort: 'createdAt',
     limit: 12,
     depth: 0,
