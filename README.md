@@ -123,6 +123,7 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 - [ ] Final logo SVG and brand name confirmed (currently a text wordmark)
 - [ ] Real photography replacing placeholder imagery (demo photos' rights unconfirmed)
 - [ ] Production database backups confirmed
+- [ ] Once every subdomain of the client's domain serves HTTPS, add `includeSubDomains` (and only then consider `preload`) to the HSTS header in `vercel.json`
 
 ## Open questions for the client
 
