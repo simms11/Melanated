@@ -23,10 +23,10 @@ export default async function CommunityPage() {
     <>
       <section className="dark-section">
         <div className="container-site py-16 lg:py-24">
-          <p className="eyebrow text-butter">Community</p>
+          <p className="eyebrow text-kicker">Community</p>
           <h1 className="text-display-xl text-ivory mt-4 max-w-3xl">
             A space to connect, collaborate and{' '}
-            <em className="font-script text-butter not-italic">rise together</em>
+            <em className="font-script text-flourish not-italic">rise together</em>
           </h1>
           <p className="text-nude mt-6 max-w-xl lg:text-lg">
             Melanated Online is more than a magazine. It&rsquo;s a community of Black women building

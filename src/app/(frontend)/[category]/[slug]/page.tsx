@@ -107,7 +107,7 @@ export default async function PostPage({ params }: Props) {
 
       <header className="container-site pt-10 lg:pt-16">
         {isDraft && (
-          <p className="bg-butter text-espresso mb-6 inline-block px-3 py-1 text-xs font-semibold tracking-wide uppercase">
+          <p className="bg-gold text-espresso-900 mb-6 inline-block px-3 py-1 text-xs font-semibold tracking-wide uppercase">
             Draft preview
           </p>
         )}

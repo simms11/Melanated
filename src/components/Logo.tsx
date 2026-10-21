@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
  * Text wordmark in the brand's gold gradient. Swap for an SVG of the final
  * logo once the client confirms "Melanated Online" vs "Melanated Magazine".
  */
-export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
+export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex flex-col leading-none', className)}>
       <span
@@ -18,12 +18,7 @@ export function Logo({ className, light = false }: { className?: string; light?:
       >
         Melanated
       </span>
-      <span
-        className={cn(
-          'self-end font-sans text-[0.5rem] tracking-[0.42em] uppercase lg:text-[0.55rem]',
-          light ? 'text-nude' : 'text-caramel-600',
-        )}
-      >
+      <span className="text-nude self-end font-sans text-[0.5rem] tracking-[0.42em] uppercase lg:text-[0.55rem]">
         Online
       </span>
     </span>

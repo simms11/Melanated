@@ -3,8 +3,9 @@
 
 /* ------------------------------------------------------------------
    Design tokens, Melanated Online
-   Client palette: caramel page base, espresso header, hero and footer,
-   ivory "paper" surface for long-form reading. See /styleguide.
+   Client palette: cocoa page body, espresso frame (header, hero, category
+   headers, footer), gold as the only accent, ivory "paper" for long-form
+   reading. See /styleguide for the measured contrast rules.
    ------------------------------------------------------------------ */
 @theme {
   /* Palette */
@@ -18,21 +19,20 @@
   --color-cocoa: #5c3a21;
   --color-espresso: #2a1a12;
   --color-espresso-900: #1c110b;
-  --color-butter: #f3c94d;
-  --color-butter-200: #fbe9a6;
   --color-gold: #d4a017;
+  --color-gold-300: #e0b43a;
 
-  /* Semantic: the caramel base. Contrast on caramel: espresso-900 5.8:1, espresso 5.2:1,
-     ivory 3.0:1 (large text only), butter 2.0:1 (never for text or controls here).
+  /* Semantic: the cocoa body. Contrast on cocoa: ivory 9.5:1, nude 6.6:1, gold 4.25:1
+     (large text, lines, icons and buttons only, never small text), so small labels are nude.
      dark-section and paper-section override these for their surfaces. */
-  --color-bg: var(--color-caramel);
-  --color-fg: var(--color-espresso-900);
-  --color-fg-muted: var(--color-espresso);
-  --color-line: color-mix(in oklab, var(--color-espresso-900) 25%, transparent);
-  --color-accent: var(--color-espresso-900);
-  --color-kicker: var(--color-espresso-900); /* eyebrows: must stay AA at 11px */
-  --color-flourish: var(--color-ivory); /* script words and drop caps: display sizes only */
-  --color-focus: var(--color-espresso-900);
+  --color-bg: var(--color-cocoa);
+  --color-fg: var(--color-ivory);
+  --color-fg-muted: var(--color-nude);
+  --color-line: color-mix(in oklab, var(--color-gold) 35%, transparent);
+  --color-accent: var(--color-gold);
+  --color-kicker: var(--color-nude); /* eyebrows: must stay AA at 11px */
+  --color-flourish: var(--color-gold); /* script words: display sizes only */
+  --color-focus: var(--color-gold);
 
   /* Type */
   --font-display: var(--font-playfair), 'Times New Roman', Georgia, serif;
@@ -81,7 +81,7 @@
   }
 
   ::selection {
-    @apply bg-butter text-espresso;
+    @apply bg-gold text-espresso-900;
   }
 
   h1,
@@ -102,6 +102,11 @@
 
   img {
     @apply h-auto max-w-full;
+  }
+
+  /* Gold hairline between consecutive cocoa sections, so the body doesn't run together. */
+  main > section:not(.dark-section) + section:not(.dark-section) {
+    border-top: 1px solid var(--color-line);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -130,7 +135,7 @@
   @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-[2px] px-6 py-3 font-sans text-[0.8125rem] font-semibold tracking-[0.12em] uppercase no-underline transition-colors duration-200;
 }
 @utility btn-primary {
-  @apply btn bg-butter text-espresso hover:bg-butter-200;
+  @apply btn bg-gold text-espresso-900 hover:bg-gold-300;
 }
 @utility btn-dark {
   @apply btn bg-espresso text-ivory hover:bg-cocoa;
@@ -157,10 +162,10 @@
   @apply bg-espresso text-ivory;
   --color-fg: var(--color-ivory);
   --color-fg-muted: var(--color-nude);
-  --color-line: color-mix(in oklab, var(--color-ivory) 15%, transparent);
-  --color-kicker: var(--color-butter);
-  --color-flourish: var(--color-butter);
-  --color-focus: var(--color-butter);
+  --color-line: color-mix(in oklab, var(--color-gold) 30%, transparent);
+  --color-kicker: var(--color-gold); /* 7.0:1 on espresso */
+  --color-flourish: var(--color-gold);
+  --color-focus: var(--color-gold);
 }
 
 /* Ivory reading surface for long-form text (article body). Contrast on ivory:
@@ -176,21 +181,8 @@
   --color-focus: var(--color-caramel-600);
 }
 
-/* Caramel band, for use inside a paper or dark surface (the page base is already caramel).
-   Contrast on caramel: espresso-900 5.8:1, espresso 5.2:1, ivory 3.0:1 (large text only),
-   butter 2.0:1, so CTAs inside use btn-dark, not btn-primary. */
-@utility caramel-section {
-  @apply bg-caramel text-espresso-900;
-  --color-fg: var(--color-espresso-900);
-  --color-fg-muted: var(--color-espresso);
-  --color-line: color-mix(in oklab, var(--color-espresso-900) 30%, transparent);
-  --color-kicker: var(--color-espresso-900);
-  --color-flourish: var(--color-ivory);
-  --color-focus: var(--color-espresso-900);
-}
-
 @utility skip-link {
-  @apply focus:bg-butter focus:text-espresso sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2;
+  @apply focus:bg-gold focus:text-espresso-900 sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-sm focus:px-4 focus:py-2;
 }
 
 /* Article body typography */

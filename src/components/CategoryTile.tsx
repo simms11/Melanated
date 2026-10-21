@@ -22,7 +22,7 @@ export function CategoryTile({ category }: { category: Category }) {
       )}
       <div className="from-espresso-900/90 via-espresso-900/30 absolute inset-0 bg-gradient-to-t to-transparent" />
       <div className="absolute inset-x-0 bottom-0 p-4 lg:p-5">
-        <p className="eyebrow text-butter">{category.title}</p>
+        <p className="eyebrow text-gold">{category.title}</p>
         {category.tagline && <p className="text-ivory/90 mt-1 text-sm">{category.tagline}</p>}
       </div>
     </Link>

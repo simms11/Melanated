@@ -10,7 +10,7 @@ export function Newsletter({ heading, body, action }: Props) {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-2">
       <div>
-        <p className="eyebrow text-butter">Stay inspired</p>
+        <p className="eyebrow text-kicker">Stay inspired</p>
         <h2 className="text-display-md text-ivory mt-3">{heading}</h2>
         <p className="text-nude mt-3 max-w-md text-sm">{body}</p>
       </div>

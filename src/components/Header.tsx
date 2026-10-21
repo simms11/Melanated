@@ -20,7 +20,7 @@ export function Header({ categories, settings }: Props) {
     <header className="dark-section border-line supports-[backdrop-filter]:bg-espresso/90 sticky top-0 z-50 border-b backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between gap-6 lg:h-20">
         <Link href="/" aria-label={`${settings.siteName}, home`} className="no-underline">
-          <Logo light />
+          <Logo />
         </Link>
 
         <SectionNav links={links} variant="inline" className="hidden md:block" />

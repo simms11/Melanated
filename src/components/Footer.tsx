@@ -38,12 +38,12 @@ export function Footer({ categories, settings }: Props) {
 
       <div className="container-site grid gap-12 py-14 md:grid-cols-[1.2fr_1fr_1fr] lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
         <div className="max-w-xs">
-          <Logo light />
+          <Logo />
           <p className="text-nude mt-5 text-sm leading-relaxed">{settings.description}</p>
         </div>
 
         <nav aria-label="Footer — sections">
-          <h2 className="eyebrow text-butter">Explore</h2>
+          <h2 className="eyebrow text-kicker">Explore</h2>
           <ul className="mt-5 space-y-3">
             {categories.map((c) => (
               <li key={c.id}>
@@ -67,7 +67,7 @@ export function Footer({ categories, settings }: Props) {
         </nav>
 
         <div>
-          <h2 className="eyebrow text-butter">Contact</h2>
+          <h2 className="eyebrow text-kicker">Contact</h2>
           <ul className="mt-5 space-y-3 text-sm">
             {settings.contactEmail && (
               <li>
@@ -96,7 +96,7 @@ export function Footer({ categories, settings }: Props) {
 
         {socials.length > 0 && (
           <div>
-            <h2 className="eyebrow text-butter">Follow</h2>
+            <h2 className="eyebrow text-kicker">Follow</h2>
             <ul className="mt-5 space-y-3 text-sm">
               {socials.map((s) => (
                 <li key={s.key}>

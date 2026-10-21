@@ -5,28 +5,38 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-// Ordered by role: base, dark surfaces, reading surface, accents.
+// Ordered by role: body, frame, accent, text, reading surface. Gold is the only accent.
 const SWATCHES: Array<[string, string, string, string]> = [
-  ['Caramel', 'bg-caramel', '#C4813C', 'Page base'],
-  ['Espresso', 'bg-espresso', '#2A1A12', 'Header, hero, footer'],
-  ['Espresso 900', 'bg-espresso-900', '#1C110B', 'Text on caramel'],
-  ['Cocoa', 'bg-cocoa', '#5C3A21', 'Tiles, image placeholders'],
-  ['Ivory', 'bg-ivory', '#FBF8F2', 'Reading surface'],
-  ['Nude', 'bg-nude', '#E8CDB0', 'Muted text on espresso'],
-  ['Butter', 'bg-butter', '#F3C94D', 'Accents on espresso'],
-  ['Gold', 'bg-gold', '#D4A017', 'Wordmark'],
+  ['Cocoa', 'bg-cocoa', '#5C3A21', 'Page body'],
+  ['Espresso', 'bg-espresso', '#2A1A12', 'Header, hero, category headers, footer'],
+  ['Gold', 'bg-gold', '#D4A017', 'Accent: buttons, wordmark, lines, focus'],
+  ['Ivory', 'bg-ivory', '#FBF8F2', 'Text on dark; article reading surface'],
+  ['Nude', 'bg-nude', '#E8CDB0', 'Muted text and small labels on cocoa'],
+  ['Espresso 900', 'bg-espresso-900', '#1C110B', 'Text on gold buttons'],
+  ['Caramel 600', 'bg-caramel-600', '#A3672C', 'Accent on the reading surface'],
+  ['Caramel', 'bg-caramel', '#C4813C', 'Reserved: not in the current scheme'],
 ]
 
 // Measured WCAG contrast. AA needs 4.5:1 for body text, 3:1 for large text and controls.
 const PAIRS: Array<[string, string, string, string]> = [
-  ['Espresso 900 on caramel', '5.8:1', 'Pass', 'Body text, eyebrows, focus ring'],
-  ['Espresso on caramel', '5.2:1', 'Pass', 'Muted text'],
-  ['Ivory on caramel', '3.0:1', 'Large only', 'Script words and drop caps only'],
-  ['Butter on caramel', '2.0:1', 'Fail', 'Never; use the dark button on caramel'],
-  ['Butter on espresso', '10.6:1', 'Pass', 'Eyebrows, primary button, focus ring'],
-  ['Nude on espresso', '11.0:1', 'Pass', 'Muted text on dark'],
+  ['Ivory on cocoa', '9.5:1', 'Pass', 'Headings and body text'],
+  ['Nude on cocoa', '6.6:1', 'Pass', 'Muted text, eyebrows, small labels'],
+  [
+    'Gold on cocoa',
+    '4.25:1',
+    'Large only',
+    'Script words, lines, icons, buttons; never small text',
+  ],
+  ['Gold on espresso', '7.0:1', 'Pass', 'Eyebrows, wordmark and labels in the frame'],
+  ['Espresso 900 on gold', '7.8:1', 'Pass', 'Primary button text'],
+  ['Ivory on gold', '2.2:1', 'Fail', 'Never'],
   ['Cocoa on ivory', '9.5:1', 'Pass', 'Eyebrows on the reading surface'],
-  ['Caramel 600 on ivory', '4.4:1', 'Large only', 'Not for small text'],
+  [
+    'Caramel 600 on ivory',
+    '4.4:1',
+    'Large only',
+    'Drop caps and links (underlined), not small text',
+  ],
 ]
 
 /**
@@ -40,8 +50,8 @@ export default function StyleguidePage() {
       <h1 className="text-display-lg mt-3">Styleguide</h1>
       <p className="text-fg-muted mt-4 max-w-prose">
         The design tokens, type scale and components the site is built from. The client&rsquo;s
-        palette: a caramel page base, espresso for the header, hero and footer, and an ivory reading
-        surface for articles.
+        palette: a cocoa body, an espresso frame (header, hero, category headers, footer), gold as
+        the only accent, and an ivory reading surface for articles. Gold stays near 10% of any page.
       </p>
 
       <section className="mt-16">
@@ -103,12 +113,14 @@ export default function StyleguidePage() {
         </p>
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
           <div className="border-line rounded-card border p-6">
-            <p className="eyebrow text-kicker">Caramel base</p>
+            <p className="eyebrow text-kicker">Cocoa body</p>
             <p className="text-display-sm text-fg mt-3">
               A community of <em className="font-script text-flourish not-italic">go-getters</em>
             </p>
-            <p className="text-fg-muted mt-2 text-sm">Default page surface. CTAs use btn-dark.</p>
-            <button className="btn-dark mt-5">Dark on caramel</button>
+            <p className="text-fg-muted mt-2 text-sm">
+              Default page surface. Small labels in nude.
+            </p>
+            <button className="btn-primary mt-5">Primary on cocoa</button>
           </div>
           <div className="dark-section rounded-card p-6">
             <p className="eyebrow text-kicker">Espresso section</p>
@@ -151,7 +163,7 @@ export default function StyleguidePage() {
       <section className="mt-16">
         <h2 className="eyebrow border-line border-b pb-3">Buttons &amp; links</h2>
         <div className="mt-6 flex flex-wrap gap-4">
-          <button className="btn-dark">Dark</button>
+          <button className="btn-primary">Primary</button>
           <button className="btn-outline">Outline</button>
           <a href="#" className="link-arrow self-center">
             Arrow link

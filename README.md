@@ -28,7 +28,7 @@ Built with **Next.js 16 (App Router, TypeScript, Tailwind 4)** and **Payload CMS
 - **Roles:** `admin` (site owner) and `author` (contributing writer). Authors edit only their own posts; whether they can publish without review is a Site Settings toggle.
 - **Images:** uploads are converted to WebP and resized into `thumbnail / card / feature / hero / og` on upload; the front end picks the right one per slot via `next/image` with `sizes`.
 - **SEO:** per-page metadata, canonical URLs, Open Graph/Twitter cards, `Article` JSON-LD, `sitemap.xml`, `robots.txt`, RSS at `/feed.xml`.
-- **Colour scheme:** the client's palette: a caramel page base, espresso header, hero, category headers and footer, and an ivory reading surface for article text. Components use semantic tokens, so text colours adapt to each surface; `/styleguide` lists the measured contrast rules.
+- **Colour scheme:** the client's palette: a cocoa page body, an espresso frame (header, hero, category headers, footer), gold as the only accent, and an ivory reading surface for article text. Components use semantic tokens, so text colours adapt to each surface; `/styleguide` lists the measured contrast rules.
 - **Accessibility:** targets WCAG 2.2 AA with a skip link, landmarks, focus states, required alt text and reduced-motion support.
 
 See [`docs/adr`](docs/adr) for the reasoning behind the main decisions.

@@ -26,7 +26,7 @@ export default async function HomePage() {
       <section className="dark-section relative overflow-hidden">
         <div className="container-site grid min-h-[70svh] items-center gap-10 py-16 lg:grid-cols-[1.1fr_1fr] lg:py-24">
           <div className="relative z-10">
-            <p className="eyebrow text-butter">{categories.map((c) => c.title).join(' / ')}</p>
+            <p className="eyebrow text-kicker">{categories.map((c) => c.title).join(' / ')}</p>
             <h1 className="text-display-xl text-ivory mt-5">
               {settings.tagline ?? 'The Modern Black Woman Builds'}
             </h1>
@@ -64,7 +64,7 @@ export default async function HomePage() {
               />
             ) : (
               <div className="flex h-full items-center justify-center p-8 text-center">
-                <p className="font-script text-butter text-4xl">
+                <p className="font-script text-flourish text-4xl">
                   Style · Strategy · Self-care · Success
                 </p>
               </div>
@@ -136,7 +136,7 @@ export default async function HomePage() {
       )}
 
       {/* Community */}
-      <section className="dark-section">
+      <section className="border-line border-y">
         <div className="container-site grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
           <div>
             <p className="eyebrow text-kicker">More than a magazine</p>
