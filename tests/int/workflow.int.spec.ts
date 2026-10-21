@@ -320,3 +320,37 @@ describe('category addresses', () => {
     await payload.delete({ collection: 'categories', id: cat.id, context: ctx })
   })
 })
+
+describe('deleting categories', () => {
+  // posts.category is nullable with ON DELETE SET NULL, so deleting a section used to
+  // orphan its posts silently (they fell back to /posts/<slug>, which 404s).
+  it('refuses to delete a category that still has posts, even drafts', async () => {
+    const cat = await payload.create({
+      collection: 'categories',
+      data: { title: `${P}-busy`, slug: `${P}-busy` },
+      context: ctx,
+    })
+    await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-in-busy`,
+        slug: `${P}-in-busy`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: cat.id,
+        authors: [admin.id],
+        disclosure: 'none',
+        _status: 'draft',
+      },
+      draft: true,
+      context: ctx,
+    })
+
+    await expect(
+      payload.delete({ collection: 'categories', id: cat.id, context: ctx }),
+    ).rejects.toThrow(/still has 1 post/)
+    const still = await payload.findByID({ collection: 'categories', id: cat.id, depth: 0 })
+    expect(still.slug).toBe(`${P}-busy`)
+  })
+})

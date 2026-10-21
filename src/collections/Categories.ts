@@ -1,5 +1,9 @@
-import type { CollectionBeforeValidateHook, CollectionConfig } from 'payload'
-import { ValidationError } from 'payload'
+import type {
+  CollectionBeforeDeleteHook,
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+} from 'payload'
+import { APIError, ValidationError } from 'payload'
 
 import { admins, anyone } from '@/access'
 import { slugField } from '@/fields/slug'
@@ -43,6 +47,26 @@ const lockSlugWhenInUse: CollectionBeforeValidateHook = async ({
     })
   }
   return data
+}
+
+/**
+ * posts.category is ON DELETE SET NULL, so deleting a section would silently strip it from
+ * its posts (drafts included) and break their URLs. Make the editor move them first.
+ */
+const refuseDeleteWhilePostsExist: CollectionBeforeDeleteHook = async ({ id, req }) => {
+  const { totalDocs } = await req.payload.count({
+    collection: 'posts',
+    where: { category: { equals: id } },
+    req,
+  })
+  if (totalDocs > 0) {
+    throw new APIError(
+      `This section still has ${totalDocs} ${totalDocs === 1 ? 'post' : 'posts'} (drafts included). Move ${totalDocs === 1 ? 'it' : 'them'} to another section before deleting it.`,
+      400,
+      undefined,
+      true,
+    )
+  }
 }
 
 export const Categories: CollectionConfig = {
@@ -101,6 +125,7 @@ export const Categories: CollectionConfig = {
   ],
   hooks: {
     beforeValidate: [lockSlugWhenInUse],
+    beforeDelete: [refuseDeleteWhilePostsExist],
     afterChange: [revalidateAll, recordCategoryRedirect],
     afterDelete: [revalidateAll],
   },
