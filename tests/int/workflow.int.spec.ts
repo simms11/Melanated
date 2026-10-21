@@ -122,6 +122,20 @@ beforeAll(async () => {
 afterAll(async () => {
   if (!payload) return
   const like = { like: P }
+  // Jobs queued for this run's posts, so a finished test leaves nothing for the next cron run.
+  const { docs: testPosts } = await payload.find({
+    collection: 'posts',
+    where: { slug: like },
+    limit: 200,
+    depth: 0,
+    draft: true,
+  })
+  if (testPosts.length) {
+    await payload.delete({
+      collection: 'payload-jobs',
+      where: { 'input.doc.value': { in: testPosts.map((p) => p.id) } },
+    })
+  }
   await payload.delete({ collection: 'redirects', where: { from: like }, context: ctx })
   await payload.delete({ collection: 'posts', where: { slug: like }, context: ctx })
   await payload.delete({ collection: 'media', where: { id: { equals: image?.id } }, context: ctx })
@@ -130,79 +144,73 @@ afterAll(async () => {
   await payload.delete({ collection: 'users', where: { email: like }, context: ctx })
 })
 
+const setAuthorsCanPublish = (on: boolean) =>
+  payload.updateGlobal({
+    slug: 'site-settings',
+    data: { editorial: { authorsCanPublish: on } },
+    context: ctx,
+  })
+
+const schedulePublish = (postId: number, by: User) =>
+  payload.jobs.queue({
+    task: 'schedulePublish',
+    input: {
+      type: 'publish',
+      doc: { relationTo: 'posts', value: postId },
+      user: { relationTo: 'users', value: by.id },
+    },
+    waitUntil: new Date(Date.now() - 1000),
+  })
+
+const runDueJobs = async () =>
+  payload.jobs.run({ queue: 'default', req: await createLocalReq({ context: ctx }, payload) })
+
 describe('scheduled publishing', () => {
-  // ADR 0003: authors can't publish unless Site Settings allows it. A scheduled publish
-  // runs later with no request — it must still be checked against the scheduling user.
-  it('does not let an author publish by scheduling it', async () => {
+  // ADR 0003: authors can't publish unless Site Settings allows it. The job runs as the
+  // user who scheduled it, so the gate still applies at 6am and the post stays a draft.
+  it("does not publish an author's scheduled post while authors can't publish", async () => {
     const settings = await payload.findGlobal({ slug: 'site-settings' })
     expect(settings.editorial?.authorsCanPublish).toBeFalsy()
 
     const post = await createPost(`${P}-gate`, author, 'draft')
-    await payload.jobs.queue({
-      task: 'schedulePublish',
-      input: {
-        type: 'publish',
-        doc: { relationTo: 'posts', value: post.id },
-        user: { relationTo: 'users', value: author.id },
-      },
-      waitUntil: new Date(Date.now() - 1000),
-    })
-    await payload.jobs.run({ queue: 'default' })
-
+    await schedulePublish(post.id, author)
+    await runDueJobs()
     const after = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
     expect(after._status).toBe('draft')
   })
 
-  // Proves it was the publish gate (not some other access rule) that stopped the job above.
-  it('lets the same author job through once authors are allowed to publish', async () => {
+  it("publishes an author's scheduled post when authors are allowed to publish", async () => {
     const post = await createPost(`${P}-gate-open`, author, 'draft')
-    await payload.updateGlobal({
-      slug: 'site-settings',
-      data: { editorial: { authorsCanPublish: true } },
-      context: ctx,
-    })
+    await setAuthorsCanPublish(true)
     try {
-      await payload.jobs.queue({
-        task: 'schedulePublish',
-        input: {
-          type: 'publish',
-          doc: { relationTo: 'posts', value: post.id },
-          user: { relationTo: 'users', value: author.id },
-        },
-        waitUntil: new Date(Date.now() - 1000),
-      })
-      await payload.jobs.run({
-        queue: 'default',
-        req: await createLocalReq({ context: ctx }, payload),
-      })
+      await schedulePublish(post.id, author)
+      await runDueJobs()
     } finally {
-      await payload.updateGlobal({
-        slug: 'site-settings',
-        data: { editorial: { authorsCanPublish: false } },
-        context: ctx,
-      })
+      await setAuthorsCanPublish(false)
     }
-
     const after = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
     expect(after._status).toBe('published')
   })
 
+  // The job runs as the user who scheduled it, so closing the gate after scheduling still
+  // stops it. This is the run-time check behind the schedule-time one.
+  it('does not publish an author job if the gate closed after it was scheduled', async () => {
+    const post = await createPost(`${P}-gate-closed-later`, author, 'draft')
+    await setAuthorsCanPublish(true)
+    try {
+      await schedulePublish(post.id, author)
+    } finally {
+      await setAuthorsCanPublish(false)
+    }
+    await runDueJobs()
+    const after = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
+    expect(after._status).toBe('draft')
+  })
+
   it('runs a due job queued by an admin', async () => {
     const post = await createPost(`${P}-admin-sched`, admin, 'draft')
-    await payload.jobs.queue({
-      task: 'schedulePublish',
-      input: {
-        type: 'publish',
-        doc: { relationTo: 'posts', value: post.id },
-        user: { relationTo: 'users', value: admin.id },
-      },
-      waitUntil: new Date(Date.now() - 1000),
-    })
-    await payload.jobs.run({
-      queue: 'default',
-      req: await createLocalReq({ context: ctx }, payload),
-    })
-
+    await schedulePublish(post.id, admin)
+    await runDueJobs()
     const after = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
     expect(after._status).toBe('published')
   })
