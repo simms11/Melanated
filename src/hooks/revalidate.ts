@@ -19,11 +19,13 @@ import type { Category, Post } from '@/payload-types'
  *  - posts      — every list of posts (home, category pages, feed, sitemap)
  *  - categories — navigation and category pages
  *  - settings   — site-wide settings (header/footer/contact)
+ *  - redirects  — old URLs kept alive after a slug or category change
  */
 export const CACHE_TAGS = {
   posts: 'posts',
   categories: 'categories',
   settings: 'settings',
+  redirects: 'redirects',
 } as const
 
 /**

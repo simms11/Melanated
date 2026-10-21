@@ -3,12 +3,12 @@ import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 
 import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
-import { getAllPostSlugs, getPostBySlug, getPosts } from '@/lib/queries'
+import { getAllPostSlugs, getPostBySlug, getPosts, getRedirect } from '@/lib/queries'
 import { absoluteUrl, asMedia, formatDate, mediaSrc } from '@/lib/utils'
 import type { Post, User } from '@/payload-types'
 
@@ -56,11 +56,16 @@ export default async function PostPage({ params }: Props) {
   const { category: categorySlug, slug } = await params
   const { isEnabled: isDraft } = await draftMode()
   const post = await getPostBySlug(slug, isDraft)
-  if (!post) notFound()
+  if (!post) {
+    const moved = await getRedirect(`/${categorySlug}/${slug}`)
+    if (moved) permanentRedirect(moved)
+    notFound()
+  }
 
   const category = categoryOf(post)
-  // Canonical URL lives under the post's category; 404 anything else so there's one URL per post.
-  if (category && category.slug !== categorySlug) notFound()
+  // One URL per post: any other category prefix (e.g. after the post moved) goes to the canonical one.
+  if (category && category.slug !== categorySlug)
+    permanentRedirect(`/${category.slug}/${post.slug}`)
 
   const hero = asMedia(post.heroImage)
   const authors = authorsOf(post)

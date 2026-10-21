@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { admins, anyone } from '@/access'
 import { slugField } from '@/fields/slug'
+import { recordCategoryRedirect } from '@/hooks/redirects'
 import { revalidateAll } from '@/hooks/revalidate'
 
 /**
@@ -57,7 +58,7 @@ export const Categories: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateAll],
+    afterChange: [revalidateAll, recordCategoryRedirect],
     afterDelete: [revalidateAll],
   },
 }

@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
@@ -14,7 +15,8 @@ import { postPath } from './collections/Posts/postPath'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import type { User } from './payload-types'
-import { isAdmin } from './access'
+import { admins, authenticated, isAdmin } from './access'
+import { revalidateRedirects } from './hooks/redirects'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -47,6 +49,20 @@ export default buildConfig({
     limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
   },
   plugins: [
+    // Old URLs keep working after a slug or category change. Entries are created
+    // automatically by hooks on Posts and Categories; admins can also add them by hand.
+    redirectsPlugin({
+      collections: ['posts', 'categories'],
+      overrides: {
+        admin: {
+          group: 'Settings',
+          description:
+            'Old URL → current page. Created automatically when a published URL changes.',
+        },
+        access: { read: authenticated, create: admins, update: admins, delete: admins },
+        hooks: { afterChange: [revalidateRedirects], afterDelete: [revalidateRedirects] },
+      },
+    }),
     seoPlugin({
       collections: ['posts'],
       uploadsCollection: 'media',

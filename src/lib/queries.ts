@@ -3,6 +3,7 @@ import type { Where } from 'payload'
 import { getPayload } from 'payload'
 
 import config from '@payload-config'
+import { postPath } from '@/collections/Posts/postPath'
 import { CACHE_TAGS } from '@/hooks/revalidate'
 import type { Category, Post, SiteSetting } from '@/payload-types'
 
@@ -127,4 +128,37 @@ export const getAllPostSlugs = unstable_cache(
   },
   ['post-slugs'],
   { tags: [CACHE_TAGS.posts], revalidate: 3600 },
+)
+
+/**
+ * Where an old URL now lives, or null. Targets are documents, so the answer is always the
+ * document's *current* URL. Tagged with posts/categories too, since those changes move targets.
+ */
+export const getRedirect = unstable_cache(
+  async (from: string): Promise<string | null> => {
+    const payload = await payloadClient()
+    const { docs } = await payload.find({
+      collection: 'redirects',
+      where: { from: { equals: from } },
+      limit: 1,
+      depth: 1,
+    })
+    const to = docs[0]?.to
+    if (!to) return null
+    if (to.type === 'custom') return to.url ?? null
+    const ref = to.reference
+    if (!ref || typeof ref.value !== 'object') return null
+    if (ref.relationTo === 'categories') return `/${ref.value.slug}`
+    // Populated relationships omit _status, so re-check the target is live.
+    const { docs: live } = await payload.find({
+      collection: 'posts',
+      where: { and: [{ id: { equals: ref.value.id } }, { _status: { equals: 'published' } }] },
+      select: { slug: true, category: true },
+      limit: 1,
+      depth: 0,
+    })
+    return live[0] ? postPath(payload, live[0]) : null
+  },
+  ['redirect'],
+  { tags: [CACHE_TAGS.redirects, CACHE_TAGS.posts, CACHE_TAGS.categories], revalidate: 3600 },
 )

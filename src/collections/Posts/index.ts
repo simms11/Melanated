@@ -26,6 +26,7 @@ import {
   authenticatedOrPublished,
 } from '@/access'
 import { slugField } from '@/fields/slug'
+import { recordPostRedirect } from '@/hooks/redirects'
 import { revalidatePost, revalidatePostDelete } from '@/hooks/revalidate'
 import type { Post } from '@/payload-types'
 
@@ -227,7 +228,7 @@ export const Posts: CollectionConfig = {
   hooks: {
     beforeValidate: [ensureAuthorIsListed, enforcePublishPermission],
     beforeChange: [populatePublishedAt, computeReadTime],
-    afterChange: [revalidatePost],
+    afterChange: [revalidatePost, recordPostRedirect],
     afterDelete: [revalidatePostDelete],
   },
   versions: {

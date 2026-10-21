@@ -69,6 +69,16 @@ const createPost = (slug: string, by: User, status: 'draft' | 'published') =>
     context: ctx,
   })
 
+const redirectFrom = async (from: string) =>
+  (
+    await payload.find({
+      collection: 'redirects',
+      where: { from: { equals: from } },
+      depth: 0,
+      limit: 1,
+    })
+  ).docs[0]
+
 beforeAll(async () => {
   payload = await getPayload({ config })
   admin = await payload.create({
@@ -112,6 +122,7 @@ beforeAll(async () => {
 afterAll(async () => {
   if (!payload) return
   const like = { like: P }
+  await payload.delete({ collection: 'redirects', where: { from: like }, context: ctx })
   await payload.delete({ collection: 'posts', where: { slug: like }, context: ctx })
   await payload.delete({ collection: 'media', where: { id: { equals: image?.id } }, context: ctx })
   await payload.delete({ collection: 'categories', where: { title: { equals: P } }, context: ctx })
@@ -193,5 +204,71 @@ describe('scheduled publishing', () => {
 
     const after = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
     expect(after._status).toBe('published')
+  })
+})
+
+describe('redirects on URL changes', () => {
+  it('keeps the old URL of a published post after a slug change', async () => {
+    const post = await createPost(`${P}-old`, admin, 'published')
+    await payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { slug: `${P}-new`, _status: 'published' },
+      context: ctx,
+    })
+
+    const redirect = await redirectFrom(`/${P}/${P}-old`)
+    expect(redirect?.to?.reference).toMatchObject({ relationTo: 'posts', value: post.id })
+  })
+
+  // The editor's real flow: the slug is changed in a draft, then published later.
+  it('records the redirect when a slug change is saved as a draft first', async () => {
+    const post = await createPost(`${P}-d-old`, admin, 'published')
+    await payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { slug: `${P}-d-new`, _status: 'draft' },
+      draft: true,
+      context: ctx,
+    })
+    await payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { _status: 'published' },
+      context: ctx,
+    })
+
+    const redirect = await redirectFrom(`/${P}/${P}-d-old`)
+    expect(redirect?.to?.reference).toMatchObject({ relationTo: 'posts', value: post.id })
+  })
+
+  it('does not create redirects for posts that were never published', async () => {
+    const post = await createPost(`${P}-never`, admin, 'draft')
+    await payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { slug: `${P}-never-2` },
+      draft: true,
+      context: ctx,
+    })
+    expect(await redirectFrom(`/${P}/${P}-never`)).toBeUndefined()
+  })
+
+  it('keeps /<old-category> working after a category slug change', async () => {
+    const cat = await payload.create({
+      collection: 'categories',
+      data: { title: `${P}-cat`, slug: `${P}-cat-old` },
+      context: ctx,
+    })
+    await payload.update({
+      collection: 'categories',
+      id: cat.id,
+      data: { slug: `${P}-cat-new` },
+      context: ctx,
+    })
+
+    const redirect = await redirectFrom(`/${P}-cat-old`)
+    expect(redirect?.to?.reference).toMatchObject({ relationTo: 'categories', value: cat.id })
+    await payload.delete({ collection: 'categories', id: cat.id, context: ctx })
   })
 })

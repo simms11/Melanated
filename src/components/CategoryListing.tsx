@@ -1,9 +1,9 @@
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 
 import { Pagination } from '@/components/Pagination'
 import { PostCard } from '@/components/PostCard'
-import { getCategoryBySlug, getPosts, getSiteSettings } from '@/lib/queries'
+import { getCategoryBySlug, getPosts, getRedirect, getSiteSettings } from '@/lib/queries'
 import { asMedia, mediaSrc } from '@/lib/utils'
 
 /**
@@ -12,7 +12,11 @@ import { asMedia, mediaSrc } from '@/lib/utils'
  */
 export async function CategoryListing({ slug, page }: { slug: string; page: number }) {
   const [category, settings] = await Promise.all([getCategoryBySlug(slug), getSiteSettings()])
-  if (!category) notFound()
+  if (!category) {
+    const moved = await getRedirect(`/${slug}`)
+    if (moved) permanentRedirect(page > 1 ? `${moved}/page/${page}` : moved)
+    notFound()
+  }
 
   const limit = settings.editorial?.postsPerPage ?? 12
   const result = await getPosts({ categorySlug: slug, page, limit })
