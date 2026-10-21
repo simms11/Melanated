@@ -41,6 +41,9 @@ jobs:
       - run: pnpm format:check
       # Includes database tests (publish gate, redirects) against the Postgres service above
       - run: pnpm test:int
+      # Tests use their own database, so build the schema here as a production deploy does:
+      # static pages query posts while building.
+      - run: pnpm migrate
       - run: pnpm build
 
   migrations:
