@@ -19,7 +19,11 @@ export const asMedia = (value: unknown): Media | null =>
 export const mediaSrc = (media: Media | null, size?: keyof NonNullable<Media['sizes']>): string => {
   if (!media) return ''
   const sized = size ? media.sizes?.[size] : undefined
-  return sized?.url || media.url || ''
+  const url = sized?.url || media.url || ''
+  // Payload prefixes local uploads with serverURL; make them relative so they match
+  // images.localPatterns in next.config. Blob storage URLs (other hosts) pass through.
+  const origin = process.env.NEXT_PUBLIC_SERVER_URL
+  return origin && url.startsWith(`${origin}/`) ? url.slice(origin.length) : url
 }
 
 export const cn = (...classes: Array<string | false | null | undefined>): string =>
