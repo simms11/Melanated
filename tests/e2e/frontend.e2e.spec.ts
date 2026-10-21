@@ -42,6 +42,23 @@ test.describe('Frontend', () => {
     }
   })
 
+  // WCAG 2.4.4 / 4.1.2: a link a keyboard or screen-reader user can reach must say where it
+  // goes. Image-only links with alt="" were announced as just "link".
+  test('every focusable link on the home page has an accessible name', async ({ page }) => {
+    await page.goto('/')
+    const unnamed = await page.evaluate(() =>
+      [...document.querySelectorAll('a[href]')]
+        .filter((a) => a.getAttribute('tabindex') !== '-1' && !a.closest('[aria-hidden="true"]'))
+        .filter((a) => {
+          const alts = [...a.querySelectorAll('img')].map((i) => i.getAttribute('alt') ?? '')
+          const name = [a.getAttribute('aria-label'), a.textContent, ...alts].join('').trim()
+          return name === ''
+        })
+        .map((a) => a.getAttribute('href')),
+    )
+    expect(unnamed).toEqual([])
+  })
+
   test('community page and 404 are on-brand', async ({ page }) => {
     await page.goto('/community')
     await expect(page.locator('h1')).toContainText(/connect/i)

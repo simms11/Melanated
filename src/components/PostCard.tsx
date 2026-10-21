@@ -22,8 +22,11 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
   if (variant === 'compact') {
     return (
       <article className="border-line flex gap-4 border-b py-4 last:border-0">
+        {/* Duplicate of the title link beside it: hide it from screen readers and Tab. */}
         <Link
           href={href}
+          aria-hidden="true"
+          tabIndex={-1}
           className="rounded-card bg-cocoa relative block aspect-square w-20 shrink-0 overflow-hidden"
         >
           {media && (
