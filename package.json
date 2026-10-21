@@ -16,6 +16,7 @@
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
     "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/seed.ts",
+    "seed:demo": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/seed-demo.ts",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation eslint . --fix",
     "format": "prettier --write .",

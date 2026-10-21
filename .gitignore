@@ -48,3 +48,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# placeholder photography — image rights unconfirmed (see scripts/seed-demo.ts)
+/content/media/demo/
