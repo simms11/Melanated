@@ -10,20 +10,27 @@ import { PostCard } from '@/components/PostCard'
 import { SectionHeading } from '@/components/SectionHeading'
 import { disclosureLabel, disclosureText } from '@/lib/disclosure'
 import { getAllPostSlugs, getPostBySlug, getPosts, getRedirect } from '@/lib/queries'
-import { absoluteUrl, asMedia, formatDate, mediaSrc, serializeJsonLd } from '@/lib/utils'
+import {
+  absoluteUrl,
+  asCategory,
+  asMedia,
+  formatDate,
+  mediaSrc,
+  serializeJsonLd,
+} from '@/lib/utils'
 import type { Post, User } from '@/payload-types'
 
 type Props = { params: Promise<{ category: string; slug: string }> }
 
 export async function generateStaticParams() {
   const posts = await getAllPostSlugs()
-  return posts.map((p) => ({
-    category: typeof p.category === 'object' ? p.category.slug : 'posts',
-    slug: p.slug,
-  }))
+  return posts.flatMap((p) => {
+    const category = asCategory(p.category)
+    return category ? [{ category: category.slug, slug: p.slug }] : []
+  })
 }
 
-const categoryOf = (post: Post) => (typeof post.category === 'object' ? post.category : null)
+const categoryOf = (post: Post) => asCategory(post.category)
 const authorsOf = (post: Post): User[] =>
   (post.authors ?? []).filter((a): a is User => typeof a === 'object')
 
@@ -32,8 +39,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(slug)
   if (!post) return {}
   const category = categoryOf(post)
+  if (!category) return {}
   const ogImage = asMedia(post.meta?.image) ?? asMedia(post.heroImage)
-  const url = `/${category?.slug ?? 'posts'}/${post.slug}`
+  const url = `/${category.slug}/${post.slug}`
   return {
     title: post.meta?.title ?? post.title,
     description: post.meta?.description ?? post.excerpt,
@@ -63,9 +71,10 @@ export default async function PostPage({ params }: Props) {
   }
 
   const category = categoryOf(post)
+  // A post without a category has no public URL.
+  if (!category) notFound()
   // One URL per post: any other category prefix (e.g. after the post moved) goes to the canonical one.
-  if (category && category.slug !== categorySlug)
-    permanentRedirect(`/${category.slug}/${post.slug}`)
+  if (category.slug !== categorySlug) permanentRedirect(`/${category.slug}/${post.slug}`)
 
   const hero = asMedia(post.heroImage)
   const authors = authorsOf(post)
@@ -86,7 +95,7 @@ export default async function PostPage({ params }: Props) {
     dateModified: post.updatedAt,
     author: authors.map((a) => ({ '@type': 'Person', name: a.name })),
     articleSection: category?.title,
-    mainEntityOfPage: absoluteUrl(`/${category?.slug ?? 'posts'}/${post.slug}`),
+    mainEntityOfPage: absoluteUrl(`/${category.slug}/${post.slug}`),
   }
 
   return (

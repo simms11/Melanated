@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { getAllPostSlugs, getCategories } from '@/lib/queries'
-import { absoluteUrl } from '@/lib/utils'
+import { absoluteUrl, postUrlPath } from '@/lib/utils'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [categories, posts] = await Promise.all([getCategories(), getAllPostSlugs()])
@@ -13,11 +13,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    ...posts.map((p) => ({
-      url: absoluteUrl(`/${typeof p.category === 'object' ? p.category.slug : 'posts'}/${p.slug}`),
-      lastModified: p.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    })),
+    ...posts.flatMap((p) => {
+      const path = postUrlPath(p)
+      if (!path) return []
+      return [
+        {
+          url: absoluteUrl(path),
+          lastModified: p.updatedAt,
+          changeFrequency: 'monthly' as const,
+          priority: 0.7,
+        },
+      ]
+    }),
   ]
 }

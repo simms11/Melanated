@@ -1,4 +1,4 @@
-import type { Media } from '@/payload-types'
+import type { Category, Media } from '@/payload-types'
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 
@@ -14,6 +14,21 @@ export const formatDate = (iso?: string | null): string =>
 /** Resolve an upload relationship (id or populated doc) to a Media doc. */
 export const asMedia = (value: unknown): Media | null =>
   value && typeof value === 'object' && 'url' in (value as object) ? (value as Media) : null
+
+/**
+ * A populated category, or null. Relationships arrive as a doc, a bare id, or null (e.g. the
+ * category was deleted), and `typeof null === 'object'`, so check for a slug explicitly.
+ */
+export const asCategory = (value: unknown): Category | null =>
+  value && typeof value === 'object' && typeof (value as Category).slug === 'string'
+    ? (value as Category)
+    : null
+
+/** A post's public path, or null when it has no category and therefore no URL. */
+export const postUrlPath = (post: { slug?: string | null; category?: unknown }): string | null => {
+  const category = asCategory(post.category)
+  return category && post.slug ? `/${category.slug}/${post.slug}` : null
+}
 
 /** Pick the best size for a given slot, falling back to the original. */
 export const mediaSrc = (media: Media | null, size?: keyof NonNullable<Media['sizes']>): string => {

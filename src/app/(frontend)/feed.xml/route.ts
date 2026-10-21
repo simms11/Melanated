@@ -1,5 +1,5 @@
 import { getAllPostSlugs, getSiteSettings } from '@/lib/queries'
-import { absoluteUrl } from '@/lib/utils'
+import { absoluteUrl, postUrlPath } from '@/lib/utils'
 
 const escape = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -7,11 +7,13 @@ const escape = (s: string) =>
 export async function GET() {
   const [settings, posts] = await Promise.all([getSiteSettings(), getAllPostSlugs()])
   const items = posts
+    .flatMap((p) => {
+      const path = postUrlPath(p)
+      return path ? [{ p, path }] : []
+    })
     .slice(0, 50)
-    .map((p) => {
-      const url = absoluteUrl(
-        `/${typeof p.category === 'object' ? p.category.slug : 'posts'}/${p.slug}`,
-      )
+    .map(({ p, path }) => {
+      const url = absoluteUrl(path)
       return `<item>
   <title>${escape(p.title)}</title>
   <link>${url}</link>

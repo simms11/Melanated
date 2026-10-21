@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import type { Post } from '@/payload-types'
 import { disclosureLabel } from '@/lib/disclosure'
-import { asMedia, cn, formatDate, mediaSrc } from '@/lib/utils'
+import { asCategory, asMedia, cn, formatDate, mediaSrc, postUrlPath } from '@/lib/utils'
 
 type Props = {
   post: Post
@@ -11,15 +11,12 @@ type Props = {
   priority?: boolean
 }
 
-export const postHref = (post: Post): string => {
-  const cat = typeof post.category === 'object' ? post.category.slug : undefined
-  return `/${cat ?? 'posts'}/${post.slug}`
-}
-
 export function PostCard({ post, variant = 'standard', priority = false }: Props) {
   const media = asMedia(post.heroImage)
-  const category = typeof post.category === 'object' ? post.category : null
-  const href = postHref(post)
+  const category = asCategory(post.category)
+  const href = postUrlPath(post)
+  // No category means no public URL; skip the card rather than link to a 404.
+  if (!href) return null
   const label = disclosureLabel(post)
 
   if (variant === 'compact') {
