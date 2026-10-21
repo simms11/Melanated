@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     include: ['tests/int/**/*.int.spec.ts'],
+    globalSetup: ['tests/globalSetup.ts'],
     setupFiles: ['tests/setup.ts'],
     environment: 'node',
     // Database tests share one Postgres and one Site Settings global (some toggle the

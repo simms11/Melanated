@@ -81,17 +81,17 @@ pnpm migrate                    # on deploy; Vercel's build command is pnpm verc
 
 ## Scripts
 
-| Script                | What it does                                          |
-| --------------------- | ----------------------------------------------------- |
-| `pnpm dev`            | Dev server with hot reload                            |
-| `pnpm build`          | Production build (fails on type errors)               |
-| `pnpm vercel-build`   | Migrate (production deploys only), then build         |
-| `pnpm check`          | Lint, typecheck and Prettier; run before every commit |
-| `pnpm test:int`       | Vitest unit + database tests (needs `DATABASE_URL`)   |
-| `pnpm test:e2e`       | Playwright smoke tests (needs a running DB)           |
-| `pnpm seed`           | Seed categories and first admin                       |
-| `pnpm seed:demo`      | Demo posts and photos for design review (`--reset`)   |
-| `pnpm generate:types` | Regenerate `src/payload-types.ts` after schema edits  |
+| Script                | What it does                                                     |
+| --------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`            | Dev server with hot reload                                       |
+| `pnpm build`          | Production build (fails on type errors)                          |
+| `pnpm vercel-build`   | Migrate (production deploys only), then build                    |
+| `pnpm check`          | Lint, typecheck and Prettier; run before every commit            |
+| `pnpm test:int`       | Vitest unit + database tests, in a separate `<db>_test` database |
+| `pnpm test:e2e`       | Playwright smoke tests (needs a running DB)                      |
+| `pnpm seed`           | Seed categories and first admin                                  |
+| `pnpm seed:demo`      | Demo posts and photos for design review (`--reset`)              |
+| `pnpm generate:types` | Regenerate `src/payload-types.ts` after schema edits             |
 
 ## Deployment (Vercel)
 
