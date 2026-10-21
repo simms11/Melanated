@@ -56,6 +56,12 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = async ({
 }) => {
   const { payload, context } = req
   if (context.disableRevalidate) return doc
+  // Nothing public changed: an autosave (every 2 seconds while writing), or a save of a post
+  // that wasn't live before and still isn't. Publishing, live edits and unpublishing refresh.
+  const isAutosave = String(req.query?.autosave) === 'true'
+  if (isAutosave || (doc._status !== 'published' && previousDoc?._status !== 'published')) {
+    return doc
+  }
 
   const paths = new Set<string>()
   if (doc._status === 'published') {
