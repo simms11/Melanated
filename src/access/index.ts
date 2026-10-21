@@ -29,11 +29,19 @@ export const adminsOrSelf: Access = ({ req: { user } }: AccessArgs<User>) => {
 }
 
 /**
- * Admins can edit any post; authors can only edit posts they are listed on.
+ * Admins can edit any post; authors can only edit posts they are listed on, and may not
+ * publish unless Site Settings allows it (ADR 0003). Payload asks this same rule, with
+ * _status "published", to decide whether to show Publish and Schedule, so writers don't
+ * see buttons they can't use. The enforcePublishPermission hook remains a second check.
  */
-export const adminsOrOwnPosts: Access = ({ req: { user } }: AccessArgs<User>) => {
+export const adminsOrOwnPosts: Access = async ({ req, data }: AccessArgs<User>) => {
+  const { user } = req
   if (!user) return false
   if (isAdmin(user)) return true
+  if ((data as { _status?: string } | undefined)?._status === 'published') {
+    const settings = await req.payload.findGlobal({ slug: 'site-settings', depth: 0, req })
+    if (!settings?.editorial?.authorsCanPublish) return false
+  }
   return { authors: { contains: user.id } }
 }
 

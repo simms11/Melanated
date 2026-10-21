@@ -4,7 +4,7 @@
  */
 import 'dotenv/config'
 import { sql, type PostgresAdapter } from '@payloadcms/db-postgres'
-import { getPayload, type Payload } from 'payload'
+import { createLocalReq, docAccessOperation, getPayload, type Payload } from 'payload'
 import sharp from 'sharp'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -352,5 +352,48 @@ describe('authors see and change only their own work', () => {
       where: { id: { in: [theirs.id, mine.id] } },
       context: ctx,
     })
+  })
+})
+
+describe('publish and schedule buttons', () => {
+  // The admin shows Publish and Schedule only if update access allows saving with
+  // _status "published" (getDocumentPermissions in @payloadcms/next). This asks the same
+  // question, so the test proves what an author sees, not just what the server rejects.
+  const canPublish = async (user: User, postId: number) => {
+    const req = await createLocalReq({ user: { ...user, collection: 'users' } as never }, payload)
+    const collection = { config: payload.collections.posts.config }
+    const [asDraft, asPublished] = await Promise.all([
+      docAccessOperation({ id: postId, collection, data: { _status: 'draft' }, req }),
+      docAccessOperation({ id: postId, collection, data: { _status: 'published' }, req }),
+    ])
+    // Payload tidies permissions: true when allowed, absent when not (the admin reads it so).
+    const allowed = (p: unknown) =>
+      p === true ||
+      (typeof p === 'object' && p !== null && 'permission' in p && p.permission === true)
+    return { save: allowed(asDraft.update), publish: allowed(asPublished.update) }
+  }
+
+  it("hides Publish and Schedule from an author while authors can't publish", async () => {
+    const post = await publishedPost(`${P}-buttons`, author)
+    expect(await canPublish(author, post.id)).toEqual({ save: true, publish: false })
+    expect(await canPublish(admin, post.id)).toEqual({ save: true, publish: true })
+  })
+
+  it('shows them again once authors are allowed to publish', async () => {
+    const post = await publishedPost(`${P}-buttons-open`, author)
+    await payload.updateGlobal({
+      slug: 'site-settings',
+      data: { editorial: { authorsCanPublish: true } },
+      context: ctx,
+    })
+    try {
+      expect(await canPublish(author, post.id)).toEqual({ save: true, publish: true })
+    } finally {
+      await payload.updateGlobal({
+        slug: 'site-settings',
+        data: { editorial: { authorsCanPublish: false } },
+        context: ctx,
+      })
+    }
   })
 })
