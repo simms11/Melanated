@@ -145,7 +145,8 @@ async function seed() {
 
   // The site admin from `pnpm seed`, never "any admin": test runs create and delete their
   // own admins, which would leave demo posts with no author.
-  const adminEmail = process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com'
+  // Payload stores emails in lowercase.
+  const adminEmail = (process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com').toLowerCase()
   const { docs: admins } = await payload.find({
     collection: 'users',
     where: { email: { equals: adminEmail } },

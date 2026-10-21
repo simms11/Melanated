@@ -74,7 +74,7 @@ async function seed() {
     }
   }
 
-  const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com'
+  const email = (process.env.SEED_ADMIN_EMAIL ?? 'admin@melanatedonline.com').toLowerCase()
   const password = process.env.SEED_ADMIN_PASSWORD ?? DEFAULT_PASSWORD
   const users = await payload.find({
     collection: 'users',
