@@ -1,12 +1,12 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-import type { Post } from '@/payload-types'
+import type { CardPost } from '@/lib/queries'
 import { disclosureLabel } from '@/lib/disclosure'
 import { asCategory, asMedia, cn, formatDate, mediaSrc, postUrlPath } from '@/lib/utils'
 
 type Props = {
-  post: Post
+  post: CardPost
   variant?: 'standard' | 'compact' | 'feature'
   priority?: boolean
 }

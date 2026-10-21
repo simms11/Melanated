@@ -51,34 +51,63 @@ type PostListArgs = {
   excludeIds?: Array<number | string>
 }
 
-export const getPosts = unstable_cache(
-  async ({
-    categorySlug,
-    page = 1,
-    limit = 12,
-    featured,
-    trending,
-    excludeIds = [],
-  }: PostListArgs = {}) => {
-    const payload = await payloadClient()
-    const and: Where[] = [{ _status: { equals: 'published' } }]
-    if (categorySlug) and.push({ 'category.slug': { equals: categorySlug } })
-    if (featured !== undefined) and.push({ featured: { equals: featured } })
-    if (trending !== undefined) and.push({ trending: { equals: trending } })
-    if (excludeIds.length) and.push({ id: { not_in: excludeIds } })
+/** The fields a post card renders. Lists select only these, so cached lists stay small. */
+export type CardPost = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'slug'
+  | 'excerpt'
+  | 'heroImage'
+  | 'category'
+  | 'publishedAt'
+  | 'readTime'
+  | 'disclosure'
+>
 
-    return payload.find({
-      collection: 'posts',
-      where: { and },
-      sort: '-publishedAt',
-      page,
-      limit,
-      depth: 2,
-      // Public data only: the where clause limits this to published posts, and authors
-      // populate through Users.defaultPopulate (no email). Access rules would strip bylines.
-      overrideAccess: true,
-    })
-  },
+const CARD_SELECT = {
+  title: true,
+  slug: true,
+  excerpt: true,
+  heroImage: true,
+  category: true,
+  publishedAt: true,
+  readTime: true,
+  disclosure: true,
+} as const
+
+/**
+ * Published posts for cards and listings. Uncached so it can be tested directly; pages use
+ * getPosts. Selecting card fields keeps article bodies, SEO and relations out of each cached
+ * list (whole articles could approach Vercel's per-entry cache limit).
+ */
+export const findCardPosts = async (
+  payload: Awaited<ReturnType<typeof payloadClient>>,
+  { categorySlug, page = 1, limit = 12, featured, trending, excludeIds = [] }: PostListArgs = {},
+) => {
+  const and: Where[] = [{ _status: { equals: 'published' } }]
+  if (categorySlug) and.push({ 'category.slug': { equals: categorySlug } })
+  if (featured !== undefined) and.push({ featured: { equals: featured } })
+  if (trending !== undefined) and.push({ trending: { equals: trending } })
+  if (excludeIds.length) and.push({ id: { not_in: excludeIds } })
+
+  const result = await payload.find({
+    collection: 'posts',
+    where: { and },
+    sort: '-publishedAt',
+    page,
+    limit,
+    depth: 1,
+    select: CARD_SELECT,
+    populate: { categories: { title: true, slug: true } },
+    // Public data only: the where clause limits this to published posts.
+    overrideAccess: true,
+  })
+  return { ...result, docs: result.docs as CardPost[] }
+}
+
+export const getPosts = unstable_cache(
+  async (args: PostListArgs = {}) => findCardPosts(await payloadClient(), args),
   ['posts'],
   { tags: [CACHE_TAGS.posts], revalidate: 3600 },
 )
