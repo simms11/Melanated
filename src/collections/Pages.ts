@@ -25,6 +25,8 @@ export const Pages: CollectionConfig = {
   },
   access: {
     read: adminsOrPublished,
+    // Drafts of policies are admin business; the version history needs its own rule.
+    readVersions: admins,
     create: admins,
     update: admins,
     delete: admins,

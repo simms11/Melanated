@@ -277,6 +277,56 @@ describe('authors see and change only their own work', () => {
     expect(seen).toBe(0)
   })
 
+  // The version history (/api/posts/versions) had no rule of its own, and Payload's fallback
+  // lets any signed-in user read it, so drafts leaked there (principal review S1).
+  it("hides another writer's drafts in the version history too", async () => {
+    const theirs = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-versions-secret`,
+        slug: `${P}-versions-secret`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: category.id,
+        authors: [admin.id],
+        disclosure: 'none',
+        _status: 'draft',
+      },
+      draft: true,
+      context: ctx,
+    })
+    const mine = await payload.create({
+      collection: 'posts',
+      data: {
+        title: `${P}-versions-mine`,
+        slug: `${P}-versions-mine`,
+        excerpt: 'Excerpt',
+        heroImage: image.id,
+        content: richText,
+        category: category.id,
+        authors: [author.id],
+        disclosure: 'none',
+        _status: 'draft',
+      },
+      draft: true,
+      context: ctx,
+    })
+    const seen = await payload.findVersions({
+      collection: 'posts',
+      where: { parent: { in: [theirs.id, mine.id] } },
+      user: author,
+      overrideAccess: false,
+    })
+    const parents = new Set(
+      seen.docs.map(
+        (v) => (v.parent as unknown as { id?: number }).id ?? (v.parent as unknown as number),
+      ),
+    )
+    expect(parents.has(theirs.id)).toBe(false)
+    expect(parents.has(mine.id)).toBe(true)
+  })
+
   it('still lets an author read published posts and their own drafts', async () => {
     const live = await publishedPost(`${P}-others-live`, admin)
     const mine = await payload.create({

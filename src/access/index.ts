@@ -71,3 +71,14 @@ export const adminsOrPublished: Access = ({ req: { user } }: AccessArgs<User>) =
   const published: Where = { _status: { equals: 'published' } }
   return published
 }
+
+/**
+ * Version history. Without its own rule Payload lets any signed-in user read every version,
+ * which leaked other writers' drafts. Admins: all. Authors: versions of posts they're on.
+ */
+export const adminsOrOwnPostVersions: Access = ({ req: { user } }: AccessArgs<User>) => {
+  if (!user) return false
+  if (isAdmin(user)) return true
+  const own: Where = { 'version.authors': { contains: user.id } }
+  return own
+}

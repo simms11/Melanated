@@ -13,6 +13,7 @@ import {
   adminsField,
   adminsOrOwnPosts,
   authenticated,
+  adminsOrOwnPostVersions,
   adminsOwnOrPublished,
 } from '@/access'
 import { editorialEditor } from '@/fields/editorialEditor'
@@ -43,6 +44,7 @@ export const Posts: CollectionConfig = {
   },
   access: {
     read: adminsOwnOrPublished,
+    readVersions: adminsOrOwnPostVersions,
     create: authenticated,
     update: adminsOrOwnPosts,
     delete: admins,
