@@ -26,6 +26,7 @@ export async function login({
 
   await page.waitForURL(`${serverURL}/admin`)
 
-  const dashboardArtifact = page.locator('.step-nav__first')
-  await expect(dashboardArtifact).toBeVisible()
+  // Signed in once the admin shows its own log-out link (a role, not a CSS class, so it
+  // survives Payload UI changes; .step-nav__first is gone from the 3.90 dashboard).
+  await expect(page.getByRole('link', { name: 'Log out' })).toBeVisible()
 }
