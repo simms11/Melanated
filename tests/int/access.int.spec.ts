@@ -1,0 +1,206 @@
+/**
+ * Access and integrity rules found in the principal review. Runs against DATABASE_URL;
+ * everything created is prefixed and removed afterwards.
+ */
+import 'dotenv/config'
+import { sql, type PostgresAdapter } from '@payloadcms/db-postgres'
+import { getPayload, type Payload } from 'payload'
+import sharp from 'sharp'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+
+import config from '@/payload.config'
+import type { Category, Media, User } from '@/payload-types'
+
+const P = `itest-acc-${Date.now()}`
+const ctx = { disableRevalidate: true }
+
+let payload: Payload
+let admin: User
+let author: User
+let category: Category
+let image: Media
+
+const richText = {
+  root: {
+    type: 'root',
+    version: 1,
+    format: '' as const,
+    indent: 0,
+    direction: 'ltr' as const,
+    children: [
+      {
+        type: 'paragraph',
+        version: 1,
+        format: '',
+        indent: 0,
+        direction: 'ltr' as const,
+        textFormat: 0,
+        children: [
+          {
+            type: 'text',
+            version: 1,
+            text: 'Body',
+            format: 0,
+            style: '',
+            mode: 'normal',
+            detail: 0,
+          },
+        ],
+      },
+    ],
+  },
+}
+
+const publishedPost = (slug: string, by: User) =>
+  payload.create({
+    collection: 'posts',
+    data: {
+      title: slug,
+      slug,
+      excerpt: 'Excerpt',
+      heroImage: image.id,
+      content: richText,
+      category: category.id,
+      authors: [by.id],
+      disclosure: 'none',
+      _status: 'published',
+    },
+    context: ctx,
+  })
+
+beforeAll(async () => {
+  payload = await getPayload({ config })
+  admin = await payload.create({
+    collection: 'users',
+    data: {
+      email: `${P}-admin@example.test`,
+      password: 'x'.repeat(16),
+      name: 'Admin',
+      role: 'admin',
+    },
+    context: ctx,
+  })
+  author = await payload.create({
+    collection: 'users',
+    data: {
+      email: `${P}-author@example.test`,
+      password: 'x'.repeat(16),
+      name: 'Writer',
+      role: 'author',
+    },
+    context: ctx,
+  })
+  category = await payload.create({
+    collection: 'categories',
+    data: { title: P, slug: P },
+    context: ctx,
+  })
+  const png = await sharp({ create: { width: 8, height: 8, channels: 3, background: '#2a1a12' } })
+    .png()
+    .toBuffer()
+  image = await payload.create({
+    collection: 'media',
+    data: { alt: 'Test swatch' },
+    file: { data: png, mimetype: 'image/png', name: `${P}.png`, size: png.length },
+    context: ctx,
+  })
+}, 60_000)
+
+afterAll(async () => {
+  if (!payload) return
+  const like = { like: P }
+  await payload.delete({ collection: 'posts', where: { slug: like }, context: ctx })
+  await payload.delete({ collection: 'media', where: { id: { equals: image?.id } }, context: ctx })
+  await payload.delete({ collection: 'categories', where: { slug: like }, context: ctx })
+  await payload.delete({ collection: 'users', where: { email: like }, context: ctx })
+})
+
+describe('user privacy', () => {
+  // Field-level read access hid the email in responses, but it could still be used as a
+  // filter, so anyone could confirm an admin's address one guess at a time.
+  it('does not let an anonymous visitor find users by email', async () => {
+    const attempt = payload
+      .find({
+        collection: 'users',
+        where: { email: { like: `${P}-admin` } },
+        overrideAccess: false,
+      })
+      .then((r) => r.totalDocs)
+      .catch(() => 0)
+    expect(await attempt).toBe(0)
+  })
+
+  it('still shows bylines on published posts without exposing email', async () => {
+    const post = await publishedPost(`${P}-byline`, author)
+    const { docs } = await payload.find({
+      collection: 'posts',
+      where: { and: [{ id: { equals: post.id } }, { _status: { equals: 'published' } }] },
+      depth: 2,
+      overrideAccess: true,
+    })
+    const byline = docs[0]?.authors?.[0]
+    expect(typeof byline).toBe('object')
+    expect(byline).toMatchObject({ name: 'Writer' })
+    expect(byline).not.toHaveProperty('email')
+  })
+})
+
+describe('reactions', () => {
+  it('lets a post that has hearts be deleted, and removes its hearts', async () => {
+    const post = await publishedPost(`${P}-hearted`, admin)
+    const db = (payload.db as unknown as PostgresAdapter).drizzle
+    await db.execute(
+      sql`INSERT INTO reactions (post_id, hearts, updated_at, created_at) VALUES (${post.id}, 3, now(), now())`,
+    )
+
+    await payload.delete({ collection: 'posts', id: post.id, context: ctx })
+
+    const left = await db.execute(
+      sql`SELECT count(*)::int AS n FROM reactions WHERE post_id = ${post.id}`,
+    )
+    expect((left as unknown as { rows: Array<{ n: number }> }).rows[0].n).toBe(0)
+  })
+})
+
+describe('author edits to live posts', () => {
+  // ADR 0003: with "Authors can publish without review" off, an author's change must not
+  // reach the live page. Saving without draft mode used to write straight to it.
+  it('rejects an author saving a published post without draft mode', async () => {
+    const post = await publishedPost(`${P}-live`, author)
+    const attempt = payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { title: 'Changed without review' },
+      user: author,
+      overrideAccess: false,
+      context: ctx,
+    })
+    await expect(attempt).rejects.toThrow()
+
+    const live = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
+    expect(live.title).toBe(`${P}-live`)
+  })
+
+  it('still lets the author save the change as a draft for review', async () => {
+    const post = await publishedPost(`${P}-draft-edit`, author)
+    await payload.update({
+      collection: 'posts',
+      id: post.id,
+      data: { title: 'Proposed title' },
+      draft: true,
+      user: author,
+      overrideAccess: false,
+      context: ctx,
+    })
+
+    const live = await payload.findByID({ collection: 'posts', id: post.id, depth: 0 })
+    expect(live.title).toBe(`${P}-draft-edit`)
+    const latest = await payload.findByID({
+      collection: 'posts',
+      id: post.id,
+      depth: 0,
+      draft: true,
+    })
+    expect(latest.title).toBe('Proposed title')
+  })
+})
