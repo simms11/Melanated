@@ -85,7 +85,9 @@ export default buildConfig({
     ...(process.env.BLOB_READ_WRITE_TOKEN
       ? [
           vercelBlobStorage({
-            collections: { media: true },
+            // Media is public ("anyone" can read), so serve files straight from Blob's CDN
+            // rather than through a server function on every request.
+            collections: { media: { disablePayloadAccessControl: true } },
             token: process.env.BLOB_READ_WRITE_TOKEN,
             // Browser uploads straight to Blob: Vercel functions reject request bodies over
             // 4.5 MB, and photos from a phone or camera are often bigger.
