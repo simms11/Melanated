@@ -39,12 +39,20 @@ export const Posts: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'category', 'authors', '_status', 'publishedAt'],
     group: 'Content',
-    preview: (doc) => {
-      const cat =
-        typeof doc?.category === 'object' && doc.category !== null
-          ? (doc.category as { slug?: string }).slug
-          : undefined
-      const path = `/${cat ?? 'posts'}/${doc?.slug}`
+    // The admin passes relationships as bare IDs, so resolve the category slug here —
+    // the article page 404s anything that isn't the post's canonical /<category>/<slug>.
+    preview: async (doc, { req }) => {
+      if (!doc?.slug || doc.category == null) return null
+      const category =
+        typeof doc.category === 'object'
+          ? (doc.category as { slug?: string })
+          : await req.payload.findByID({
+              collection: 'categories',
+              id: doc.category as number,
+              depth: 0,
+            })
+      if (!category?.slug) return null
+      const path = `/${category.slug}/${doc.slug}`
       return `${process.env.NEXT_PUBLIC_SERVER_URL ?? ''}/api/preview?path=${encodeURIComponent(path)}`
     },
   },

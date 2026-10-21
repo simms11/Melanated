@@ -11,7 +11,8 @@ import config from '@payload-config'
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const path = searchParams.get('path') ?? '/'
-  if (!path.startsWith('/')) return new Response('Invalid path', { status: 400 })
+  // Must be a same-origin path: "//evil.com" and "/\evil.com" are protocol-relative redirects.
+  if (!/^\/(?![/\\])/.test(path)) return new Response('Invalid path', { status: 400 })
 
   const payload = await getPayload({ config })
   const { user } = await payload.auth({ headers: req.headers })
