@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 
 import { CategoryListing } from '@/components/CategoryListing'
 import { getCategories, getCategoryBySlug, getPosts, getSiteSettings } from '@/lib/queries'
@@ -31,6 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPagedPage({ params }: Props) {
   const { category, n } = await params
   const page = Number(n)
+  // Page 1 lives at /<category>; send /<category>/page/1 there rather than 404.
+  if (page === 1) permanentRedirect(`/${category}`)
   if (!Number.isInteger(page) || page < 2) notFound()
   return <CategoryListing slug={category} page={page} />
 }

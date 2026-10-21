@@ -67,6 +67,13 @@ test.describe('Frontend', () => {
     await expect(page.locator('h1')).toContainText(/find that page/i)
   })
 
+  test('page 1 of a section redirects to the section itself', async ({ request }) => {
+    const res = await request.get('/beauty/page/1', { maxRedirects: 0 })
+    expect(res.status()).toBe(308)
+    expect(res.headers()['location']).toMatch(/\/beauty$/)
+    expect((await request.get('/beauty/page/0', { maxRedirects: 0 })).status()).toBe(404)
+  })
+
   test('sitemap, robots and feed respond', async ({ request }) => {
     for (const path of ['/sitemap.xml', '/robots.txt', '/feed.xml']) {
       const res = await request.get(path)
