@@ -24,17 +24,6 @@ export function Header({ categories, settings }: Props) {
         </Link>
 
         <SectionNav links={links} variant="inline" className="hidden md:block" />
-
-        {settings.whatsappUrl && (
-          <a
-            href={settings.whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary hidden min-h-10 px-5 py-2 text-[0.75rem] lg:inline-flex"
-          >
-            Join the community
-          </a>
-        )}
       </div>
 
       {/* Phones: the sections get their own row instead of hiding behind a menu. */}

@@ -25,22 +25,8 @@ export default async function CommunityPage() {
           </h1>
           <p className="text-fg-muted mt-6 max-w-xl lg:text-lg">{community.intro}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            {settings.whatsappUrl ? (
-              <a
-                href={settings.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-              >
-                {community.whatsappLabel}
-              </a>
-            ) : (
-              <span className="btn-outline-light cursor-default opacity-70">
-                {community.whatsappPendingLabel}
-              </span>
-            )}
             {settings.contactEmail && (
-              <a href={`mailto:${settings.contactEmail}`} className="btn-outline-light">
+              <a href={`mailto:${settings.contactEmail}`} className="btn-primary">
                 {community.emailLabel}
               </a>
             )}

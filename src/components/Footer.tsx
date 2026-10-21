@@ -68,18 +68,6 @@ export function Footer({ categories, settings, legalPages }: Props) {
                 </a>
               </li>
             )}
-            {settings.whatsappUrl && (
-              <li>
-                <a
-                  href={settings.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-ivory/85 hover:text-ivory no-underline"
-                >
-                  WhatsApp community
-                </a>
-              </li>
-            )}
           </ul>
         </div>
 

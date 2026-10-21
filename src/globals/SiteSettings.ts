@@ -64,12 +64,6 @@ export const SiteSettings: GlobalConfig = {
               defaultValue: 'Hello@Melanatedonline.com',
             },
             {
-              name: 'whatsappUrl',
-              type: 'text',
-              label: 'WhatsApp community link',
-              admin: { placeholder: 'https://chat.whatsapp.com/...' },
-            },
-            {
               name: 'social',
               type: 'group',
               fields: [

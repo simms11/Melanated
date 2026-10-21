@@ -33,7 +33,7 @@ If we give you an account to write for the site, we store your name, email addre
 
 ### Community groups
 
-Our WhatsApp community and social media pages are run on those platforms. Their own privacy policies apply to anything you share there.
+Our social media pages are run on those platforms. Their own privacy policies apply to anything you share there.
 
 ## Our legal basis
 

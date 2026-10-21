@@ -971,7 +971,6 @@ export interface SiteSetting {
   logo?: (number | null) | Media;
   ogImage?: (number | null) | Media;
   contactEmail?: string | null;
-  whatsappUrl?: string | null;
   social?: {
     instagram?: string | null;
     tiktok?: string | null;
@@ -1031,8 +1030,6 @@ export interface PageContent {
     heading: string;
     highlight: string;
     intro: string;
-    whatsappLabel: string;
-    whatsappPendingLabel: string;
     emailLabel: string;
     metaDescription: string;
     pillars?:
@@ -1057,7 +1054,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   logo?: T;
   ogImage?: T;
   contactEmail?: T;
-  whatsappUrl?: T;
   social?:
     | T
     | {
@@ -1114,8 +1110,6 @@ export interface PageContentSelect<T extends boolean = true> {
         heading?: T;
         highlight?: T;
         intro?: T;
-        whatsappLabel?: T;
-        whatsappPendingLabel?: T;
         emailLabel?: T;
         metaDescription?: T;
         pillars?:

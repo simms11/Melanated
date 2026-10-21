@@ -7,6 +7,7 @@ import * as migration_20261021_184404_remove_newsletter from './20261021_184404_
 import * as migration_20261021_185921_add_pages from './20261021_185921_add_pages';
 import * as migration_20261021_190350_add_page_content from './20261021_190350_add_page_content';
 import * as migration_20261021_204541_add_blob_object_key from './20261021_204541_add_blob_object_key';
+import * as migration_20261021_221208_remove_whatsapp from './20261021_221208_remove_whatsapp';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20261021_204541_add_blob_object_key.up,
     down: migration_20261021_204541_add_blob_object_key.down,
-    name: '20261021_204541_add_blob_object_key'
+    name: '20261021_204541_add_blob_object_key',
+  },
+  {
+    up: migration_20261021_221208_remove_whatsapp.up,
+    down: migration_20261021_221208_remove_whatsapp.down,
+    name: '20261021_221208_remove_whatsapp'
   },
 ];

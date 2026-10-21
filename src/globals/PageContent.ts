@@ -104,12 +104,6 @@ export const PageContent: GlobalConfig = {
               'Intro',
               true,
             ),
-            text('whatsappLabel', 'Join on WhatsApp', 'WhatsApp button label'),
-            text(
-              'whatsappPendingLabel',
-              'WhatsApp link coming soon',
-              'Label while there is no WhatsApp link',
-            ),
             text('emailLabel', 'Email us', 'Email button label'),
             text(
               'metaDescription',

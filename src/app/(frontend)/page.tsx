@@ -39,16 +39,6 @@ export default async function HomePage() {
               <Link href={home.heroButtonLink} className="btn-primary">
                 {home.heroButtonLabel}
               </Link>
-              {settings.whatsappUrl && (
-                <a
-                  href={settings.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-outline-light"
-                >
-                  Join the community
-                </a>
-              )}
             </div>
           </div>
           <div className="rounded-card bg-cocoa relative aspect-[4/5] overflow-hidden lg:aspect-[5/6]">
