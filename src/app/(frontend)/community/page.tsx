@@ -60,7 +60,7 @@ export default async function CommunityPage() {
         <ul className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map(([t, d], i) => (
             <li key={t}>
-              <p className="font-display text-display-sm text-caramel">0{i + 1}</p>
+              <p className="font-display text-display-sm text-flourish">0{i + 1}</p>
               <h2 className="mt-3 font-sans text-sm font-semibold tracking-wide uppercase">{t}</h2>
               <p className="text-fg-muted mt-2 text-sm">{d}</p>
             </li>

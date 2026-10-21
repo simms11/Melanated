@@ -27,7 +27,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
       <article className="border-line flex gap-4 border-b py-4 last:border-0">
         <Link
           href={href}
-          className="rounded-card bg-cream relative block aspect-square w-20 shrink-0 overflow-hidden"
+          className="rounded-card bg-cocoa relative block aspect-square w-20 shrink-0 overflow-hidden"
         >
           {media && (
             <Image
@@ -41,7 +41,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
         </Link>
         <div className="min-w-0">
           {(category || label) && (
-            <p className="eyebrow text-caramel-600">
+            <p className="eyebrow text-kicker">
               {category?.title}
               {label && (
                 <span className="text-fg">
@@ -70,7 +70,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
         aria-hidden="true"
         tabIndex={-1}
         className={cn(
-          'rounded-card bg-cream relative block overflow-hidden',
+          'rounded-card bg-cocoa relative block overflow-hidden',
           isFeature ? 'aspect-[4/5] md:aspect-[3/4]' : 'aspect-[4/5]',
         )}
       >
@@ -91,7 +91,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
       </Link>
       <div className={cn(isFeature ? 'md:pr-8' : 'mt-4')}>
         {(category || label) && (
-          <p className="eyebrow text-caramel-600">
+          <p className="eyebrow text-kicker">
             {category?.title}
             {label && (
               <span className="text-fg">
@@ -109,7 +109,7 @@ export function PostCard({ post, variant = 'standard', priority = false }: Props
         <p className={cn('text-fg-muted mt-3', isFeature ? 'text-base' : 'text-sm')}>
           {post.excerpt}
         </p>
-        <p className="text-fg-muted/80 mt-3 text-xs">
+        <p className="text-fg-muted mt-3 text-xs">
           {formatDate(post.publishedAt)}
           {post.readTime ? ` · ${post.readTime} min read` : ''}
         </p>

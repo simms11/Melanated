@@ -92,7 +92,7 @@ export default async function HomePage() {
         <section className="container-site grid gap-12 py-10 lg:grid-cols-[1.6fr_1fr] lg:gap-16">
           {featured && (
             <div>
-              <p className="eyebrow text-caramel-600 mb-6">Featured</p>
+              <p className="eyebrow text-kicker mb-6">Featured</p>
               <PostCard post={featured} variant="feature" />
             </div>
           )}
@@ -128,7 +128,7 @@ export default async function HomePage() {
 
       {latest.length === 0 && !featured && (
         <section className="container-site py-20 text-center">
-          <p className="font-script text-caramel text-4xl">Coming soon</p>
+          <p className="font-script text-flourish text-4xl">Coming soon</p>
           <p className="text-fg-muted mt-3">
             Our first stories are on their way. Join the community to hear first.
           </p>
@@ -136,7 +136,7 @@ export default async function HomePage() {
       )}
 
       {/* Community */}
-      <section className="caramel-section">
+      <section className="dark-section">
         <div className="container-site grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
           <div>
             <p className="eyebrow text-kicker">More than a magazine</p>
@@ -147,7 +147,7 @@ export default async function HomePage() {
               Join a community of ambitious, creative and empowered Black women building the life
               they love.
             </p>
-            <Link href="/community" className="btn-dark mt-8">
+            <Link href="/community" className="btn-primary mt-8">
               Join the community
             </Link>
           </div>

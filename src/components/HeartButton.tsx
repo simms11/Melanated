@@ -107,9 +107,7 @@ export function HeartButton({
       aria-label={`${hearted ? 'Remove your heart' : 'Heart this story'}, ${count} ${count === 1 ? 'heart' : 'hearts'}`}
       className={cn(
         'group inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full transition-colors disabled:opacity-60',
-        variant === 'prominent'
-          ? 'border-line hover:border-caramel-600 border px-5 py-2'
-          : '-ml-2 px-2',
+        variant === 'prominent' ? 'border-line hover:border-fg border px-5 py-2' : '-ml-2 px-2',
       )}
     >
       <svg
@@ -117,7 +115,7 @@ export function HeartButton({
         viewBox="0 0 24 24"
         className={cn(
           'ease-out-soft size-5 transition-transform duration-200 group-active:scale-90',
-          hearted ? 'fill-caramel-600 stroke-caramel-600' : 'stroke-fg fill-none',
+          hearted ? 'fill-accent stroke-accent' : 'stroke-fg fill-none',
         )}
         strokeWidth={1.75}
       >

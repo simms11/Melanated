@@ -17,10 +17,10 @@ export function Header({ categories, settings }: Props) {
   ]
 
   return (
-    <header className="border-line bg-ivory/90 supports-[backdrop-filter]:bg-ivory/75 sticky top-0 z-50 border-b backdrop-blur">
+    <header className="dark-section border-line supports-[backdrop-filter]:bg-espresso/90 sticky top-0 z-50 border-b backdrop-blur">
       <div className="container-site flex h-16 items-center justify-between gap-6 lg:h-20">
         <Link href="/" aria-label={`${settings.siteName} — home`} className="no-underline">
-          <Logo />
+          <Logo light />
         </Link>
 
         <nav aria-label="Primary" className="hidden lg:block">
@@ -29,7 +29,7 @@ export function Header({ categories, settings }: Props) {
               <li key={l.href}>
                 <Link
                   href={l.href}
-                  className="eyebrow text-fg hover:text-caramel-600 no-underline transition-colors"
+                  className="eyebrow text-fg hover:text-kicker no-underline transition-colors"
                 >
                   {l.label}
                 </Link>

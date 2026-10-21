@@ -26,7 +26,7 @@ export async function CategoryListing({ slug, page }: { slug: string; page: numb
 
   return (
     <>
-      <section className="caramel-section">
+      <section className="dark-section">
         <div className="container-site grid gap-8 py-14 lg:grid-cols-[1fr_1fr] lg:items-end lg:py-20">
           <div>
             <p className="eyebrow text-kicker">Section</p>

@@ -102,7 +102,7 @@ export default async function PostPage({ params }: Props) {
             Draft preview
           </p>
         )}
-        <nav aria-label="Breadcrumb" className="eyebrow text-caramel-600">
+        <nav aria-label="Breadcrumb" className="eyebrow text-kicker">
           <ol className="flex gap-2">
             <li>
               <Link href="/" className="no-underline hover:underline">
@@ -146,7 +146,7 @@ export default async function PostPage({ params }: Props) {
 
       {hero && (
         <figure className="container-site mt-10">
-          <div className="rounded-card bg-cream relative aspect-[16/10] overflow-hidden sm:aspect-[21/9]">
+          <div className="rounded-card bg-cocoa relative aspect-[16/10] overflow-hidden sm:aspect-[21/9]">
             <Image
               src={mediaSrc(hero, 'hero')}
               alt={hero.alt}
@@ -165,43 +165,47 @@ export default async function PostPage({ params }: Props) {
         </figure>
       )}
 
+      {/* Long-form reads on an ivory "paper" surface: caramel is the brand base, but
+          sustained reading needs a calmer, higher-contrast ground. */}
       <div className="container-site mt-12 lg:mt-16">
-        <div className="prose-editorial mx-auto">
-          <RichText data={post.content} />
-        </div>
-
-        {!isDraft && (
-          <div className="mx-auto mt-12 flex max-w-prose items-center gap-4">
-            <p className="text-fg-muted text-sm">Enjoyed this story?</p>
-            <HeartButton postId={post.id} variant="prominent" />
+        <div className="paper-section rounded-card px-5 py-10 sm:px-10 lg:py-16">
+          <div className="prose-editorial mx-auto">
+            <RichText data={post.content} />
           </div>
-        )}
 
-        {authors.length > 0 && (
-          <aside className="border-line mx-auto mt-14 max-w-prose border-t pt-8">
-            {authors.map((a) => {
-              const avatar = asMedia(a.avatar)
-              return (
-                <div key={a.id} className="flex gap-4">
-                  {avatar && (
-                    <Image
-                      src={mediaSrc(avatar, 'thumbnail')}
-                      alt=""
-                      width={56}
-                      height={56}
-                      className="h-14 w-14 rounded-full object-cover"
-                    />
-                  )}
-                  <div>
-                    <p className="eyebrow text-caramel-600">Written by</p>
-                    <p className="font-display mt-1 text-lg">{a.name}</p>
-                    {a.bio && <p className="text-fg-muted mt-1 text-sm">{a.bio}</p>}
+          {!isDraft && (
+            <div className="mx-auto mt-12 flex max-w-prose items-center gap-4">
+              <p className="text-fg-muted text-sm">Enjoyed this story?</p>
+              <HeartButton postId={post.id} variant="prominent" />
+            </div>
+          )}
+
+          {authors.length > 0 && (
+            <aside className="border-line mx-auto mt-14 max-w-prose border-t pt-8">
+              {authors.map((a) => {
+                const avatar = asMedia(a.avatar)
+                return (
+                  <div key={a.id} className="flex gap-4">
+                    {avatar && (
+                      <Image
+                        src={mediaSrc(avatar, 'thumbnail')}
+                        alt=""
+                        width={56}
+                        height={56}
+                        className="h-14 w-14 rounded-full object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="eyebrow text-kicker">Written by</p>
+                      <p className="font-display mt-1 text-lg">{a.name}</p>
+                      {a.bio && <p className="text-fg-muted mt-1 text-sm">{a.bio}</p>}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </aside>
-        )}
+                )
+              })}
+            </aside>
+          )}
+        </div>
       </div>
 
       {related.length > 0 && (

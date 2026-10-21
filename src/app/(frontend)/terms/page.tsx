@@ -9,7 +9,7 @@ export default async function TermsPage() {
   const settings = await getSiteSettings()
   return (
     <div className="container-site py-16">
-      <p className="eyebrow text-caramel-600">Legal</p>
+      <p className="eyebrow text-kicker">Legal</p>
       <h1 className="text-display-lg mt-3">Terms of use</h1>
       <div className="prose-editorial mt-8">
         <p>
